@@ -65,6 +65,9 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <RunAnalyzersDuringBuild>false</RunAnalyzersDuringBuild>
     <EnableNETAnalyzers>false</EnableNETAnalyzers>
+    <!-- SonarQube project categorization -->
+    <SonarQubeTestProject Condition="$(MSBuildProjectName.EndsWith('.Tests')) or $(MSBuildProjectName.EndsWith('.IntegrationTests'))">true</SonarQubeTestProject>
+    <SonarQubeExclude Condition="$(MSBuildProjectName.EndsWith('.Benchmarks')) or $(MSBuildProjectName.EndsWith('.AotSmokeTest'))">true</SonarQubeExclude>
     <!-- Suppress non-actionable code style/naming warnings in test suites per ADR-026 (Osherove naming) and test framework dynamics -->
     <NoWarn>$(NoWarn);CS1591;CS8600;CS8604;IDE1006;CA1707;CA1515;CA1822;CA2007;CA1815;CA2201;CA1305;CA1852;CA1861;CA1862;CA1866;CA1002;CA1034;CA2225;CA2227;CA1304;NU1608;NU1903;IL2026;IL2055;IL2060;IL2072;IL2073;IL2093;xUnit1030;xUnit1031</NoWarn>
     <IsAotCompatible>false</IsAotCompatible>
@@ -74,6 +77,7 @@
   <!-- Sample configuration -->
   <PropertyGroup Condition="$(MSBuildProjectDirectory.Contains('samples'))">
     <IsPackable>false</IsPackable>
+    <SonarQubeExclude>true</SonarQubeExclude>
     <NoWarn>$(NoWarn);CA1515</NoWarn>
   </PropertyGroup>
 

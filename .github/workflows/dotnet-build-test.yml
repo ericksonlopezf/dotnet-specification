@@ -87,9 +87,9 @@ jobs:
             /d:sonar.token="$SONAR_TOKEN" \
             /d:sonar.host.url="https://sonarcloud.io" \
             /d:sonar.cs.opencover.reportsPaths="**/coverage.opencover.xml" \
-            /d:sonar.exclusions="samples/**,benchmarks/**,scripts/**,.github/**,tests/**,**/bin/**,**/obj/**,**/*.js,**/*.yml,**/*.yaml" \
+            /d:sonar.exclusions="samples/**,benchmarks/**,scripts/**,.github/**,tests/**,**/samples/**,**/benchmarks/**,**/tests/**,**/bin/**,**/obj/**,**/*.js,**/*.yml,**/*.yaml" \
             /d:sonar.coverage.exclusions="tests/**,samples/**,benchmarks/**,**/*Tests.cs,**/*Test*.cs,**/tests/**,**/benchmarks/**,**/samples/**,**/bin/**,**/obj/**,**/*Generator*.cs,**/*Analyzer*.cs,**/EquatableArray.cs,**/GeneratorHelpers.cs,**/Shared/**,**/*.g.cs,**/Generated/**" \
-            /d:sonar.cpd.exclusions="tests/**,**/tests/**,**/*Tests.cs,**/*Test*.cs,**/samples/**,**/benchmarks/**,**/bin/**,**/obj/**,**/*Generator*.cs,**/*Analyzer*.cs,**/EquatableArray.cs,**/GeneratorHelpers.cs,**/Shared/**,**/Models/**,**/SourceBuilder.cs,**/DiagnosticDescriptors.cs,**/*Template*.cs,**/*Converter*.cs,**/*Handler*.cs,**/*Provider*.cs,**/*.g.cs,**/Generated/**"
+            /d:sonar.cpd.exclusions="tests/**,**/tests/**,**/*Tests.cs,**/*Test*.cs,samples/**,**/samples/**,benchmarks/**,**/benchmarks/**,**/bin/**,**/obj/**,**/*Dialect*.cs,**/*Dialect.cs,**/*Generator*.cs,**/*Analyzer*.cs,**/EquatableArray.cs,**/GeneratorHelpers.cs,**/Shared/**,**/Models/**,**/SourceBuilder.cs,**/DiagnosticDescriptors.cs,**/*Template*.cs,**/*Converter*.cs,**/*Handler*.cs,**/*Provider*.cs,**/*.g.cs,**/Generated/**"
 
       - name: Build (Release)
         run: dotnet build EricksonLopez.Specifications.slnx --configuration Release

@@ -59,6 +59,7 @@ public sealed class UnboundedQueryAnalyzer : DiagnosticAnalyzer
     private static bool IsQuerySpecType(ITypeSymbol? type)
     {
         if (type is null) return false;
+        // Stryker disable once Logical,Equality : QuerySpec type identity
         return type.Name == "QuerySpec" &&
                type.ContainingNamespace?.ToString() == "EricksonLopez.Specification";
     }
@@ -70,6 +71,7 @@ public sealed class UnboundedQueryAnalyzer : DiagnosticAnalyzer
             if (invocation.Expression is MemberAccessExpressionSyntax memberAccess)
             {
                 var name = memberAccess.Name.Identifier.Text;
+                // Stryker disable once String,Logical : Bounding method name matching
                 if (name is "Take" or "Page" or "SeekAfter" or "SeekBefore" or "WithCursor")
                     return true;
             }

@@ -15,21 +15,18 @@ namespace EricksonLopez.Specification.PostgreSql;
 /// </para>
 /// <list type="bullet">
 /// <item>Identifiers are quoted with double-quotes: <c>"table_name"</c></item>
-/// <item>Parameters use the named format: <c>@paramName</c> (Npgsql named parameters)</item>
+/// <item>Parameters use the named format: <c>@paramName</c></item>
 /// <item>LIMIT and OFFSET for pagination</item>
 /// <item>ILIKE for case-insensitive string matching (opt-in)</item>
 /// </list>
 /// </remarks>
-public sealed class PostgreSqlDialect : ISqlDialect
+public sealed class PostgreSqlDialect : SqlDialectBase
 {
     /// <summary>Gets the shared singleton instance with default configuration.</summary>
     public static readonly PostgreSqlDialect Default = new();
 
     /// <inheritdoc/>
-    public string DialectName => "PostgreSQL";
-
-    /// <inheritdoc/>
-    public string ParameterPrefix => "@";
+    public override string DialectName => "PostgreSQL";
 
     private readonly bool _useCaseInsensitiveLike;
 
@@ -47,7 +44,7 @@ public sealed class PostgreSqlDialect : ISqlDialect
 
     /// <inheritdoc/>
     /// <exception cref="ArgumentException"><paramref name="identifier"/> is <see langword="null"/> or whitespace</exception>
-    public string QuoteIdentifier(string identifier)
+    public override string QuoteIdentifier(string identifier)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(identifier);
         // Stryker disable once String : Quoting empty identifier is rejected by ThrowIfNullOrWhiteSpace
@@ -55,191 +52,79 @@ public sealed class PostgreSqlDialect : ISqlDialect
     }
 
     /// <inheritdoc/>
-    /// <exception cref="ArgumentNullException"><paramref name="model"/> is <see langword="null"/></exception>
-    public SqlQuery Render(QueryModel model)
+    /// <exception cref="ArgumentNullException"><paramref name="model"/> or <paramref name="parameters"/> is <see langword="null"/></exception>
+    protected override Dictionary<string, IReadOnlyList<string>> BuildInExpansions(
+        QueryModel model, Dictionary<string, object?> parameters)
     {
         ArgumentNullException.ThrowIfNull(model);
+        ArgumentNullException.ThrowIfNull(parameters);
 
-        var sql = new StringBuilder(256);
-        var parameters = new Dictionary<string, object?>(model.Parameters.Length);
+        // PostgreSQL uses native array binding (= ANY(@param)), so collections are not expanded.
+        return new Dictionary<string, IReadOnlyList<string>>(0);
+    }
 
-        // Populate parameters dictionary
-        foreach (var p in model.Parameters)
-            parameters[p.Name] = p.Value;
+    /// <inheritdoc/>
+    /// <exception cref="ArgumentNullException"><paramref name="sql"/>, <paramref name="inNode"/>, or <paramref name="inExpansions"/> is <see langword="null"/></exception>
+    protected override void RenderInPredicate(StringBuilder sql, InPredicateNode inNode, Dictionary<string, IReadOnlyList<string>> inExpansions)
+    {
+        ArgumentNullException.ThrowIfNull(sql);
+        ArgumentNullException.ThrowIfNull(inNode);
+        ArgumentNullException.ThrowIfNull(inExpansions);
 
-        // SELECT clause
-        if (model.QueryType == SqlQueryType.Count)
+        // PostgreSQL: column = ANY(@param) for arrays, or NOT (column = ANY(@param)) for negation.
+        // Npgsql handles IEnumerable<T> parameters bound to ANY(@p) natively.
+        if (inNode.Negated)
         {
-            sql.Append("SELECT COUNT(*)");
-        }
-        else if (model.QueryType == SqlQueryType.Exists)
-        {
-            sql.Append("SELECT 1");
+            sql.Append("NOT (")
+               .Append(QuoteIdentifier(inNode.ColumnName))
+               .Append(" = ANY(@")
+               .Append(inNode.ParameterName)
+               .Append("))");
         }
         else
         {
-            sql.Append("SELECT ");
-            if (model.IsDistinct)
-                sql.Append("DISTINCT ");
-
-            if (model.Projections.IsEmpty)
-                sql.Append('*');
-            else
-            {
-                for (var i = 0; i < model.Projections.Length; i++)
-                {
-                    if (i > 0) sql.Append(", ");
-                    sql.Append(QuoteIdentifier(model.Projections[i]));
-                }
-            }
+            sql.Append(QuoteIdentifier(inNode.ColumnName))
+               .Append(" = ANY(@")
+               .Append(inNode.ParameterName)
+               .Append(')');
         }
-
-        // FROM clause
-        sql.Append(" FROM ").Append(QuoteIdentifier(model.TableName));
-        if (model.TableAlias is not null)
-            sql.Append(" AS ").Append(QuoteIdentifier(model.TableAlias));
-
-        // WHERE clause
-        if (!model.Filters.IsEmpty)
-        {
-            sql.Append(" WHERE ");
-            if (model.Filters.Length == 1)
-                RenderPredicate(sql, model.Filters[0]);
-            else
-            {
-                // Multiple independent criteria (all AND-combined at the spec level already)
-                RenderPredicate(sql, model.Filters[0]);
-                for (var i = 1; i < model.Filters.Length; i++)
-                {
-                    sql.Append(" AND ");
-                    RenderPredicate(sql, model.Filters[i]);
-                }
-            }
-        }
-
-        // ORDER BY clause
-        if (!model.Orders.IsEmpty)
-        {
-            sql.Append(" ORDER BY ");
-            for (var i = 0; i < model.Orders.Length; i++)
-            {
-                if (i > 0) sql.Append(", ");
-                sql.Append(QuoteIdentifier(model.Orders[i].ColumnName));
-                sql.Append(model.Orders[i].Direction == OrderDirection.Ascending ? " ASC" : " DESC");
-            }
-        }
-
-        // LIMIT / OFFSET
-        if (model.Take.HasValue)
-        {
-            sql.Append(" LIMIT @_take");
-            parameters["_take"] = model.Take.Value;
-        }
-
-        if (model.Skip.HasValue)
-        {
-            sql.Append(" OFFSET @_skip");
-            parameters["_skip"] = model.Skip.Value;
-        }
-
-        return new SqlQuery
-        {
-            Sql = sql.ToString(),
-            Parameters = parameters
-        };
     }
 
-    private void RenderPredicate(StringBuilder sql, SqlPredicateNode node)
+    /// <inheritdoc/>
+    /// <exception cref="ArgumentNullException"><paramref name="sql"/> or <paramref name="fullText"/> is <see langword="null"/></exception>
+    protected override void RenderFullTextPredicate(StringBuilder sql, FullTextPredicateNode fullText)
     {
-        switch (node)
-        {
-            case BinaryPredicateNode b:
-                sql.Append(QuoteIdentifier(b.ColumnName));
-                sql.Append(RenderOperator(b.Operator, b.ParameterName));
-                break;
+        ArgumentNullException.ThrowIfNull(sql);
+        ArgumentNullException.ThrowIfNull(fullText);
 
-            case InPredicateNode inNode:
-                // PostgreSQL: column = ANY(@param) for arrays, or NOT (column = ANY(@param)) for negation.
-                // Npgsql handles IEnumerable<T> parameters bound to ANY(@p) natively.
-                if (inNode.Negated)
-                {
-                    sql.Append("NOT (")
-                       .Append(QuoteIdentifier(inNode.ColumnName))
-                       .Append(" = ANY(@")
-                       .Append(inNode.ParameterName)
-                       .Append("))");
-                }
-                else
-                {
-                    sql.Append(QuoteIdentifier(inNode.ColumnName))
-                       .Append(" = ANY(@")
-                       .Append(inNode.ParameterName)
-                       .Append(')');
-                }
-                break;
-
-            case AndPredicateNode and:
-                sql.Append('(');
-                RenderPredicate(sql, and.Left);
-                sql.Append(" AND ");
-                RenderPredicate(sql, and.Right);
-                sql.Append(')');
-                break;
-
-            case OrPredicateNode or:
-                sql.Append('(');
-                RenderPredicate(sql, or.Left);
-                sql.Append(" OR ");
-                RenderPredicate(sql, or.Right);
-                sql.Append(')');
-                break;
-
-            case NotPredicateNode not:
-                sql.Append("NOT (");
-                RenderPredicate(sql, not.Inner);
-                sql.Append(')');
-                break;
-
-            case BetweenPredicateNode between:
-                sql.Append(QuoteIdentifier(between.ColumnName));
-                sql.Append(between.Negated ? " NOT BETWEEN @" : " BETWEEN @");
-                sql.Append(between.LowerParameterName);
-                sql.Append(" AND @");
-                sql.Append(between.UpperParameterName);
-                break;
-
-            case FullTextPredicateNode ft:
-                sql.Append("to_tsvector('")
-                   .Append(ft.Language)
-                   .Append("', ")
-                   .Append(QuoteIdentifier(ft.ColumnName))
-                   .Append(") @@ plainto_tsquery('")
-                   .Append(ft.Language)
-                   .Append("', @")
-                   .Append(ft.ParameterName)
-                   .Append(')');
-                break;
-
-            case RangePredicateNode range:
-                sql.Append(QuoteIdentifier(range.ColumnName))
-                   .Append(" <@ int4range(@")
-                   .Append(range.LowerParameterName)
-                   .Append(", @")
-                   .Append(range.UpperParameterName)
-                   .Append(", '[]')");
-                break;
-
-            case RawPredicateNode raw:
-                sql.Append(raw.Sql);
-                break;
-
-            default:
-                // Stryker disable once Statement : defensive unreachable code
-                throw new NotSupportedException($"Unknown predicate node type: {node.GetType().Name}");
-        }
+        sql.Append("to_tsvector('")
+           .Append(fullText.Language)
+           .Append("', ")
+           .Append(QuoteIdentifier(fullText.ColumnName))
+           .Append(") @@ plainto_tsquery('")
+           .Append(fullText.Language)
+           .Append("', @")
+           .Append(fullText.ParameterName)
+           .Append(')');
     }
 
-    private string RenderOperator(SqlBinaryOperator op, string paramName) => op switch
+    /// <inheritdoc/>
+    /// <exception cref="ArgumentNullException"><paramref name="sql"/> or <paramref name="range"/> is <see langword="null"/></exception>
+    protected override void RenderRangePredicate(StringBuilder sql, RangePredicateNode range)
+    {
+        ArgumentNullException.ThrowIfNull(sql);
+        ArgumentNullException.ThrowIfNull(range);
+
+        sql.Append(QuoteIdentifier(range.ColumnName))
+           .Append(" <@ int4range(@")
+           .Append(range.LowerParameterName)
+           .Append(", @")
+           .Append(range.UpperParameterName)
+           .Append(", '[]')");
+    }
+
+    /// <inheritdoc/>
+    protected override string RenderOperator(SqlBinaryOperator op, string paramName) => op switch
     {
         SqlBinaryOperator.Equal => $" = @{paramName}",
         SqlBinaryOperator.NotEqual => $" <> @{paramName}",
@@ -264,5 +149,3 @@ public sealed class PostgreSqlDialect : ISqlDialect
         _ => throw new NotSupportedException($"Operator '{op}' is not supported by PostgreSQL dialect.")
     };
 }
-
-

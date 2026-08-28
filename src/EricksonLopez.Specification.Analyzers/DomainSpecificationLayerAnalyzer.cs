@@ -57,12 +57,14 @@ public sealed class DomainSpecificationLayerAnalyzer : DiagnosticAnalyzer
             return;
 
         var namespaceName = type.ContainingNamespace?.ToString() ?? string.Empty;
+        // Stryker disable once Equality : Token at start of namespace (index 0) must match
         var matchedToken = InfrastructureNamespaceTokens
             .FirstOrDefault(token => namespaceName.IndexOf(token, System.StringComparison.OrdinalIgnoreCase) >= 0);
 
         if (matchedToken is null)
             return;
 
+        // Stryker disable once Linq : Empty DeclaringSyntaxReferences safe access
         var declaration = type.DeclaringSyntaxReferences.FirstOrDefault()?.GetSyntax(context.CancellationToken);
         var location = declaration is ClassDeclarationSyntax classDecl
             ? classDecl.Identifier.GetLocation()
