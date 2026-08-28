@@ -41,7 +41,7 @@ public sealed class OrderingWithoutPaginationAnalyzer : DiagnosticAnalyzer
             if (variable.Initializer?.Value is null)
                 continue;
 
-            var typeInfo = context.SemanticModel.GetTypeInfo(variable.Initializer.Value);
+            var typeInfo = context.SemanticModel.GetTypeInfo(variable.Initializer.Value, context.CancellationToken);
             if (!IsQuerySpecType(typeInfo.Type))
                 continue;
 
@@ -52,7 +52,7 @@ public sealed class OrderingWithoutPaginationAnalyzer : DiagnosticAnalyzer
             {
                 context.ReportDiagnostic(Diagnostic.Create(
                     SpecificationDiagnosticDescriptors.OrderingWithoutPagination,
-                    variable.GetLocation(),
+                    variable.Identifier.GetLocation(),
                     GetEntityTypeName(typeInfo.Type)));
             }
         }
@@ -61,6 +61,7 @@ public sealed class OrderingWithoutPaginationAnalyzer : DiagnosticAnalyzer
     private static bool IsQuerySpecType(ITypeSymbol? type)
     {
         if (type is null) return false;
+        // Stryker disable once Logical,Equality : QuerySpec type identity
         return type.Name == "QuerySpec" &&
                type.ContainingNamespace?.ToString() == "EricksonLopez.Specification";
     }
@@ -72,6 +73,7 @@ public sealed class OrderingWithoutPaginationAnalyzer : DiagnosticAnalyzer
             if (invocation.Expression is MemberAccessExpressionSyntax ma)
             {
                 var name = ma.Name.Identifier.Text;
+                // Stryker disable once String,Logical : Method name matching
                 if (name is "OrderBy" or "OrderByDescending" or "ThenBy" or "ThenByDescending")
                     return true;
             }
@@ -86,6 +88,7 @@ public sealed class OrderingWithoutPaginationAnalyzer : DiagnosticAnalyzer
             if (invocation.Expression is MemberAccessExpressionSyntax ma)
             {
                 var name = ma.Name.Identifier.Text;
+                // Stryker disable once String,Logical : Pagination method name matching
                 if (name is "Take" or "Page" or "SeekAfter" or "SeekBefore" or "WithCursor")
                     return true;
             }
@@ -93,10 +96,8 @@ public sealed class OrderingWithoutPaginationAnalyzer : DiagnosticAnalyzer
         return false;
     }
 
-    private static string GetEntityTypeName(ITypeSymbol? type)
-    {
-        if (type is INamedTypeSymbol named && named.TypeArguments.Length > 0)
-            return named.TypeArguments[0].Name;
-        return type?.Name ?? "T";
-    }
+    private static string GetEntityTypeName(ITypeSymbol? type) =>
+        type is INamedTypeSymbol { TypeArguments.Length: > 0 } named
+            ? named.TypeArguments[0].Name
+            : "T";
 }

@@ -51,10 +51,12 @@ jobs:
       # Priority: workflow_dispatch input → git tag → fallback to Directory.Build.props
       - name: Resolve version
         id: version
+        env:
+          INPUT_VERSION: ${{ inputs.version }}
         run: |
-          if [ -n "${{ inputs.version }}" ]; then
-            echo "VERSION=${{ inputs.version }}" >> $GITHUB_OUTPUT
-            echo "Resolved version from workflow_dispatch input: ${{ inputs.version }}"
+          if [ -n "$INPUT_VERSION" ]; then
+            echo "VERSION=$INPUT_VERSION" >> $GITHUB_OUTPUT
+            echo "Resolved version from workflow_dispatch input: $INPUT_VERSION"
           elif [[ "$GITHUB_REF" == refs/tags/v* ]]; then
             VERSION="${GITHUB_REF_NAME#v}"
             echo "VERSION=$VERSION" >> $GITHUB_OUTPUT

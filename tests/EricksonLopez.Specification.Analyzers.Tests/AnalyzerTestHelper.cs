@@ -22,6 +22,21 @@ public static class AnalyzerTestHelper
                 public abstract System.Linq.Expressions.Expression<System.Func<T, bool>> BuildExpression();
                 public bool IsSatisfiedBy(T entity) => throw new System.NotImplementedException();
             }
+
+            public sealed class QuerySpec<T>
+            {
+                public static QuerySpec<T> Empty => new();
+                public QuerySpec<T> Where(System.Linq.Expressions.Expression<System.Func<T, bool>> criteria) => this;
+                public QuerySpec<T> OrderBy<TKey>(System.Linq.Expressions.Expression<System.Func<T, TKey>> keySelector) => this;
+                public QuerySpec<T> OrderByDescending<TKey>(System.Linq.Expressions.Expression<System.Func<T, TKey>> keySelector) => this;
+                public QuerySpec<T> ThenBy<TKey>(System.Linq.Expressions.Expression<System.Func<T, TKey>> keySelector) => this;
+                public QuerySpec<T> ThenByDescending<TKey>(System.Linq.Expressions.Expression<System.Func<T, TKey>> keySelector) => this;
+                public QuerySpec<T> Take(int count) => this;
+                public QuerySpec<T> Page(int pageNumber, int pageSize) => this;
+                public QuerySpec<T> SeekAfter(params object[] values) => this;
+                public QuerySpec<T> SeekBefore(params object[] values) => this;
+                public QuerySpec<T> WithCursor(string cursor) => this;
+            }
         }
         """;
 

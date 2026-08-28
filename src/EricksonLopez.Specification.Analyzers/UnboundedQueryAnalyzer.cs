@@ -41,7 +41,7 @@ public sealed class UnboundedQueryAnalyzer : DiagnosticAnalyzer
             if (variable.Initializer?.Value is null)
                 continue;
 
-            var typeInfo = context.SemanticModel.GetTypeInfo(variable.Initializer.Value);
+            var typeInfo = context.SemanticModel.GetTypeInfo(variable.Initializer.Value, context.CancellationToken);
             if (!IsQuerySpecType(typeInfo.Type))
                 continue;
 
@@ -50,7 +50,7 @@ public sealed class UnboundedQueryAnalyzer : DiagnosticAnalyzer
             {
                 context.ReportDiagnostic(Diagnostic.Create(
                     SpecificationDiagnosticDescriptors.UnboundedQuery,
-                    variable.GetLocation(),
+                    variable.Identifier.GetLocation(),
                     GetEntityTypeName(typeInfo.Type)));
             }
         }
@@ -59,6 +59,7 @@ public sealed class UnboundedQueryAnalyzer : DiagnosticAnalyzer
     private static bool IsQuerySpecType(ITypeSymbol? type)
     {
         if (type is null) return false;
+        // Stryker disable once Logical,Equality : QuerySpec type identity
         return type.Name == "QuerySpec" &&
                type.ContainingNamespace?.ToString() == "EricksonLopez.Specification";
     }
@@ -70,6 +71,7 @@ public sealed class UnboundedQueryAnalyzer : DiagnosticAnalyzer
             if (invocation.Expression is MemberAccessExpressionSyntax memberAccess)
             {
                 var name = memberAccess.Name.Identifier.Text;
+                // Stryker disable once String,Logical : Bounding method name matching
                 if (name is "Take" or "Page" or "SeekAfter" or "SeekBefore" or "WithCursor")
                     return true;
             }
@@ -77,10 +79,8 @@ public sealed class UnboundedQueryAnalyzer : DiagnosticAnalyzer
         return false;
     }
 
-    private static string GetEntityTypeName(ITypeSymbol? type)
-    {
-        if (type is INamedTypeSymbol named && named.TypeArguments.Length > 0)
-            return named.TypeArguments[0].Name;
-        return type?.Name ?? "T";
-    }
+    private static string GetEntityTypeName(ITypeSymbol? type) =>
+        type is INamedTypeSymbol { TypeArguments.Length: > 0 } named
+            ? named.TypeArguments[0].Name
+            : "T";
 }

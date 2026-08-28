@@ -21,10 +21,11 @@ name: Mutation Testing (Stryker)
 #   • Sqlite (EricksonLopez.Specification.Sqlite)
 #
 # Execution Architecture:
-#   • Pull Requests: Stryker is DECOUPLED and does NOT run on PRs (to avoid blocking normal development).
-#   • Main (push): Asynchronously executes on main branch pushes as a deferred quality gate.
+#   • Pull Requests & Push: Stryker is DECOUPLED and does NOT run on PRs or push (to avoid blocking fast CI cycle times).
+#   • Release Gate: Acts as a release quality gate, verified during publish (max 7-day freshness, zero code drift).
 #   • Schedule: Weekly scheduled execution (Monday 04:00 UTC) to catch regressions early.
 #   • Manual (workflow_dispatch): Interactive execution with mutation level selection (Basic, Standard, Advanced).
+#   • Callable (workflow_call): Reusable invocation from release orchestration workflows.
 #
 # Threshold policy (single source of truth defined in stryker-*.json):
 #   • high  (≥100%) — ✅ HIGH
@@ -34,9 +35,6 @@ name: Mutation Testing (Stryker)
 # ─────────────────────────────────────────────────────────────────────────────
 
 on:
-  push:
-    branches:
-      - main
   workflow_dispatch:
     inputs:
       mutation-level:
@@ -51,6 +49,13 @@ on:
   # Weekly scheduled execution (Monday 04:00 UTC) to catch regressions early
   schedule:
     - cron: "0 4 * * 1"
+  workflow_call:
+    inputs:
+      mutation-level:
+        description: "Stryker mutation level (Basic, Standard, Advanced)"
+        required: false
+        default: "Standard"
+        type: string
 
 # Concurrency configuration:
 # Cancels obsolete in-progress runs when a new commit is pushed to the same branch/ref,
@@ -157,8 +162,8 @@ jobs:
       - name: Build (Release)
         run: dotnet build EricksonLopez.Specifications.slnx --no-restore --configuration Release
 
-      - name: Install Stryker
-        run: dotnet tool install --global dotnet-stryker
+      - name: Restore dotnet tools
+        run: dotnet tool restore
 
       - name: Run Stryker (${{ matrix.name }})
         id: stryker
@@ -166,7 +171,7 @@ jobs:
           set +e
           dotnet stryker \
             --config-file ${{ matrix.config }} \
-            --test-runner mtp \
+            --test-runner vstest \
             --mutation-level ${{ inputs.mutation-level || 'Standard' }} \
             --output ${{ matrix.output-dir }}
           STRYKER_EXIT_CODE=$?

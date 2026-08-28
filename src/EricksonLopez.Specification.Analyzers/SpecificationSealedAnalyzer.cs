@@ -42,7 +42,7 @@ public sealed class SpecificationSealedAnalyzer : DiagnosticAnalyzer
             return;
 
         // Report the diagnostic
-        var declaration = (ClassDeclarationSyntax)type.DeclaringSyntaxReferences[0].GetSyntax();
+        var declaration = (ClassDeclarationSyntax)type.DeclaringSyntaxReferences[0].GetSyntax(context.CancellationToken);
 
         var diagnostic = Diagnostic.Create(
             SpecificationDiagnosticDescriptors.SpecificationShouldBeSealedOrAbstract,

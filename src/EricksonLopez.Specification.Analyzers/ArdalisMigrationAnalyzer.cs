@@ -38,7 +38,7 @@ public sealed class ArdalisMigrationAnalyzer : DiagnosticAnalyzer
             if (baseType.Name == "Specification" &&
                 baseType.ContainingNamespace.ToString() == "Ardalis.Specification")
             {
-                var declaration = (ClassDeclarationSyntax)type.DeclaringSyntaxReferences[0].GetSyntax();
+                var declaration = (ClassDeclarationSyntax)type.DeclaringSyntaxReferences[0].GetSyntax(context.CancellationToken);
                 var diagnostic = Diagnostic.Create(
                     SpecificationDiagnosticDescriptors.LegacyArdalisSpecificationDetected,
                     declaration.Identifier.GetLocation(),

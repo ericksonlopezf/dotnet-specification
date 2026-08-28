@@ -44,7 +44,7 @@ public sealed class AsyncInExpressionAnalyzer : DiagnosticAnalyzer
         if (methodDecl.Identifier.Text != BuildExpressionName)
             return;
 
-        var methodSymbol = context.SemanticModel.GetDeclaredSymbol(methodDecl)!;
+        var methodSymbol = context.SemanticModel.GetDeclaredSymbol(methodDecl, context.CancellationToken)!;
 
         // Only process methods on Specification<T> subclasses
         if (!methodSymbol.ContainingType.InheritsFromSpecification())

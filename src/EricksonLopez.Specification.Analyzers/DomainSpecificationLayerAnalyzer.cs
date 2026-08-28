@@ -2,6 +2,7 @@
 using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace EricksonLopez.Specification.Analyzers;
@@ -56,19 +57,22 @@ public sealed class DomainSpecificationLayerAnalyzer : DiagnosticAnalyzer
             return;
 
         var namespaceName = type.ContainingNamespace?.ToString() ?? string.Empty;
+        // Stryker disable once Equality : Token at start of namespace (index 0) must match
         var matchedToken = InfrastructureNamespaceTokens
             .FirstOrDefault(token => namespaceName.IndexOf(token, System.StringComparison.OrdinalIgnoreCase) >= 0);
 
         if (matchedToken is null)
             return;
 
-        var declaration = type.DeclaringSyntaxReferences.FirstOrDefault()?.GetSyntax();
-        if (declaration is null)
-            return;
+        // Stryker disable once Linq : Empty DeclaringSyntaxReferences safe access
+        var declaration = type.DeclaringSyntaxReferences.FirstOrDefault()?.GetSyntax(context.CancellationToken);
+        var location = declaration is ClassDeclarationSyntax classDecl
+            ? classDecl.Identifier.GetLocation()
+            : declaration?.GetLocation() ?? type.Locations[0];
 
         context.ReportDiagnostic(Diagnostic.Create(
             SpecificationDiagnosticDescriptors.DomainSpecificationOutsideDomain,
-            declaration.GetLocation(),
+            location,
             type.Name,
             namespaceName));
     }

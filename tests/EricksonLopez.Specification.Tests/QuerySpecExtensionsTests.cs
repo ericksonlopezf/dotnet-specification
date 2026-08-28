@@ -142,6 +142,31 @@ public sealed class QuerySpecExtensionsTests
         combined.Criteria.Should().HaveCount(1);
         combined.HasOrdering().Should().BeTrue();
     }
+
+    [Fact]
+    public void Where_WithSpecification_NullQuerySpec_ThrowsArgumentNullException()
+    {
+        var act = () => QuerySpecExtensions.Where(null!, new ActiveCustomerSpecification());
+        act.Should().Throw<ArgumentNullException>();
+    }
+
+    [Fact]
+    public void Where_WithSpecification_NullSpecification_ThrowsArgumentNullException()
+    {
+        var act = () => QuerySpec<Customer>.Empty.Where((IExpressionSpecification<Customer>)null!);
+        act.Should().Throw<ArgumentNullException>();
+    }
+
+    [Fact]
+    public void Where_WithSpecification_AddsCriteria()
+    {
+        var querySpec = QuerySpec<Customer>.Empty;
+        var spec = new ActiveCustomerSpecification();
+
+        var result = querySpec.Where(spec);
+        result.Criteria.Length.Should().Be(1);
+        result.HasCriteria().Should().BeTrue();
+    }
 }
 
 

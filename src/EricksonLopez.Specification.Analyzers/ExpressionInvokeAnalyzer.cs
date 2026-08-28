@@ -46,12 +46,8 @@ public sealed class ExpressionInvokeAnalyzer : DiagnosticAnalyzer
         if (methodDecl.Identifier.Text != BuildExpressionName)
             return;
 
-        var methodSymbol = context.SemanticModel.GetDeclaredSymbol(methodDecl);
-        if (methodSymbol is null)
-            return;
-
-        // Only process methods on Specification<T> subclasses
-        if (!methodSymbol.ContainingType.InheritsFromSpecification())
+        var methodSymbol = context.SemanticModel.GetDeclaredSymbol(methodDecl, context.CancellationToken);
+        if (methodSymbol is null || !methodSymbol.ContainingType.InheritsFromSpecification())
             return;
 
         // Walk the method body looking for Expression.Invoke(...)
@@ -64,7 +60,7 @@ public sealed class ExpressionInvokeAnalyzer : DiagnosticAnalyzer
                 continue;
 
             // Verify the receiver resolves to System.Linq.Expressions.Expression (static class)
-            var receiverSymbol = context.SemanticModel.GetSymbolInfo(memberAccess.Expression).Symbol;
+            var receiverSymbol = context.SemanticModel.GetSymbolInfo(memberAccess.Expression, context.CancellationToken).Symbol;
             bool isStaticExpressionInvoke = receiverSymbol is INamedTypeSymbol typeSymbol &&
                 typeSymbol.Name == "Expression" &&
                 typeSymbol.ContainingNamespace?.ToString() == "System.Linq.Expressions";
