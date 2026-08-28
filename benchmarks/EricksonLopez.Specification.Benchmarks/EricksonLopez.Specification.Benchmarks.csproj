@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <AssemblyName>EricksonLopez.Specification.Benchmarks</AssemblyName>
+    <RootNamespace>EricksonLopez.Specification.Benchmarks</RootNamespace>
+    <IsPackable>false</IsPackable>
+    <Nullable>enable</Nullable>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <IsAotCompatible>false</IsAotCompatible>
+    <EnableTrimAnalyzer>false</EnableTrimAnalyzer>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BenchmarkDotNet" />
+    <PackageReference Include="Ardalis.Specification" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\EricksonLopez.Specification\EricksonLopez.Specification.csproj" />
+    <ProjectReference Include="..\..\src\EricksonLopez.Specification.Sql\EricksonLopez.Specification.Sql.csproj" />
+    <ProjectReference Include="..\..\src\EricksonLopez.Specification.PostgreSql\EricksonLopez.Specification.PostgreSql.csproj" />
+    <ProjectReference Include="..\..\src\EricksonLopez.Specification.Linq\EricksonLopez.Specification.Linq.csproj" />
+  </ItemGroup>
+
+</Project>
+

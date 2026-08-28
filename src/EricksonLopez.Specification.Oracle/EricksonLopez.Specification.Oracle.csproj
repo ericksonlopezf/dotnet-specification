@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <AssemblyName>EricksonLopez.Specification.Oracle</AssemblyName>
+    <RootNamespace>EricksonLopez.Specification.Oracle</RootNamespace>
+    <PackageId>EricksonLopez.Specification.Oracle</PackageId>
+    <Description>Oracle Database dialect for EricksonLopez.Specification. Translates QueryModel to Oracle-compatible SQL (OFFSET/FETCH, double quote quoting, :parameters, IN expansion).</Description>
+    <PackageTags>$(CommonPackageTags);oracle;oracle-db;plsql;sql-dialect;rdbms;aot</PackageTags>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\EricksonLopez.Specification.Sql\EricksonLopez.Specification.Sql.csproj" />
+  </ItemGroup>
+
+</Project>

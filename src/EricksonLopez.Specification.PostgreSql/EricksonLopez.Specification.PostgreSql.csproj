@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <AssemblyName>EricksonLopez.Specification.PostgreSql</AssemblyName>
+    <RootNamespace>EricksonLopez.Specification.PostgreSql</RootNamespace>
+    <PackageId>EricksonLopez.Specification.PostgreSql</PackageId>
+    <Description>PostgreSQL dialect for EricksonLopez.Specification. Translates QueryModel to PostgreSQL-compatible SQL (LIMIT/OFFSET, ILIKE, $n parameters, etc.).</Description>
+    <PackageTags>$(CommonPackageTags);postgresql;postgres;npgsql;sql-dialect;rdbms;aot</PackageTags>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Class1.cs" />
+    <ProjectReference Include="..\EricksonLopez.Specification.Sql\EricksonLopez.Specification.Sql.csproj" />
+  </ItemGroup>
+
+</Project>

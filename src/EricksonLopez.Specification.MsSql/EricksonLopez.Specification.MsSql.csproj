@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <AssemblyName>EricksonLopez.Specification.MsSql</AssemblyName>
+    <RootNamespace>EricksonLopez.Specification.MsSql</RootNamespace>
+    <PackageId>EricksonLopez.Specification.MsSql</PackageId>
+    <Description>Microsoft SQL Server (T-SQL) dialect for EricksonLopez.Specification. Translates QueryModel to SQL Server-compatible SQL (OFFSET/FETCH, TOP N, bracket quoting, @parameters, IN expansion).</Description>
+    <PackageTags>$(CommonPackageTags);sql-server;mssql;tsql;sql-dialect;rdbms;aot</PackageTags>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\EricksonLopez.Specification.Sql\EricksonLopez.Specification.Sql.csproj" />
+  </ItemGroup>
+
+</Project>

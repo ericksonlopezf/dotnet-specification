@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <AssemblyName>EricksonLopez.Specification.Abstractions</AssemblyName>
+    <RootNamespace>EricksonLopez.Specification</RootNamespace>
+    <PackageId>EricksonLopez.Specification.Abstractions</PackageId>
+    <Description>Pure domain-level specification abstractions. Zero infrastructure dependencies. AOT-safe interfaces for ISpecification&lt;T&gt;, IExpressionSpecification&lt;T&gt;, and QuerySpec&lt;T&gt;.</Description>
+    <PackageTags>$(CommonPackageTags);abstractions;contracts;domain-model;query-spec;repository-pattern;aot</PackageTags>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Class1.cs" />
+  </ItemGroup>
+
+</Project>

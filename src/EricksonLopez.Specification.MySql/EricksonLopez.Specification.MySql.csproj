@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <AssemblyName>EricksonLopez.Specification.MySql</AssemblyName>
+    <RootNamespace>EricksonLopez.Specification.MySql</RootNamespace>
+    <PackageId>EricksonLopez.Specification.MySql</PackageId>
+    <Description>MySQL and MariaDB dialect for EricksonLopez.Specification. Translates QueryModel to MySQL-compatible SQL (LIMIT/OFFSET, backtick quoting, @parameters, IN expansion).</Description>
+    <PackageTags>$(CommonPackageTags);mysql;sql-dialect;rdbms;aot</PackageTags>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\EricksonLopez.Specification.Sql\EricksonLopez.Specification.Sql.csproj" />
+  </ItemGroup>
+
+</Project>

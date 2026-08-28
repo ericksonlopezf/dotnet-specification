@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <AssemblyName>EricksonLopez.Specification.MariaDb</AssemblyName>
+    <RootNamespace>EricksonLopez.Specification.MariaDb</RootNamespace>
+    <PackageId>EricksonLopez.Specification.MariaDb</PackageId>
+    <Description>MariaDB dialect for EricksonLopez.Specification. Translates QueryModel to MariaDB-compatible SQL (backtick quoting, @parameters, LIMIT/OFFSET, expanded IN).</Description>
+    <PackageTags>$(CommonPackageTags);mariadb;sql-dialect;rdbms;aot</PackageTags>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\EricksonLopez.Specification.Sql\EricksonLopez.Specification.Sql.csproj" />
+  </ItemGroup>
+
+</Project>

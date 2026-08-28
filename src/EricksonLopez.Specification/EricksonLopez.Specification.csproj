@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <AssemblyName>EricksonLopez.Specification</AssemblyName>
+    <RootNamespace>EricksonLopez.Specification</RootNamespace>
+    <PackageId>EricksonLopez.Specification</PackageId>
+    <Description>Core Specification Pattern implementation for .NET 10+. AOT-first, allocation-conscious, DDD-compatible. Includes expression engine, composition, simplification, and structural hashing.</Description>
+    <PackageTags>$(CommonPackageTags);expression-tree;expression;composition;boolean-algebra;interpreter;aot;native-aot;high-performance</PackageTags>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Class1.cs" />
+    <ProjectReference Include="..\EricksonLopez.Specification.Abstractions\EricksonLopez.Specification.Abstractions.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="EricksonLopez.Specification.Tests" />
+  </ItemGroup>
+
+</Project>
