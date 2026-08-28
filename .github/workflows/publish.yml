@@ -1,0 +1,244 @@
+name: Publish NuGet
+
+# ─── Triggers ─────────────────────────────────────────────────────────────────
+# 1. Automatic: Triggered by Release Please when a release PR is merged.
+#    The workflow_dispatch input 'version' will be set to the new SemVer.
+# 2. Manual: Also triggered by pushing a 'v*.*.*' tag manually (legacy support).
+# 3. Manual dispatch: Via GitHub UI for debugging.
+#
+# Automatic versioning flow:
+#   Commit with Conventional prefix (e.g. 'feat:') →
+#   release-please.yml creates/updates Release PR →
+#   Maintainer merges Release PR →
+#   release-please creates GitHub Release + tag vX.Y.Z →
+#   release-please triggers this workflow via workflow_dispatch →
+#   Conditional Stryker Gate (evaluates freshness / src drift / missing runs) →
+#   Pack → Sign → Attest → Publish to NuGet.org
+# ─────────────────────────────────────────────────────────────────────────────────
+
+on:
+  push:
+    tags:
+      - "v*.*.*"           # Legacy: manual tag push still works
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version to publish (e.g. 1.2.3 — without 'v' prefix)"
+        required: false
+        type: string
+
+env:
+  DOTNET_NOLOGO: true
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
+
+jobs:
+  # ─── Job 1: Evaluate Stryker Mutation Gate Freshness & Drift ───────────────
+  evaluate-mutation-gate:
+    name: Evaluate Stryker Mutation Gate
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      statuses: read
+      actions: read
+    outputs:
+      needs_stryker: ${{ steps.evaluate.outputs.needs_stryker }}
+      evaluated_commit: ${{ steps.evaluate.outputs.evaluated_commit }}
+      mutation_score: ${{ steps.evaluate.outputs.mutation_score }}
+      can_proceed: ${{ steps.evaluate.outputs.can_proceed }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Evaluate Mutation Freshness & Drift
+        id: evaluate
+        uses: actions/github-script@v7
+        env:
+          STRYKER_GATE_MODE: evaluate
+        with:
+          script: |
+            const verifyMutationGate = require('./scripts/verify-mutation-gate.js');
+            await verifyMutationGate({ github, context, core, mode: 'evaluate' });
+
+  # ─── Job 2: Conditional Stryker Mutation Execution ─────────────────────────
+  run-mutation-testing:
+    needs: evaluate-mutation-gate
+    if: needs.evaluate-mutation-gate.outputs.needs_stryker == 'true'
+    permissions:
+      contents: read
+      statuses: write
+      actions: read
+    uses: ./.github/workflows/mutation-testing.yml
+    secrets: inherit
+
+  # ─── Job 3: Pack & Publish ────────────────────────────────────────────────
+  publish:
+    name: Pack & Publish
+    runs-on: ubuntu-latest
+    needs: [evaluate-mutation-gate, run-mutation-testing]
+    if: always() && needs.evaluate-mutation-gate.result == 'success' && (needs.run-mutation-testing.result == 'success' || needs.run-mutation-testing.result == 'skipped')
+    permissions:
+      id-token: write        # Required for Sigstore OIDC attestation
+      contents: write        # Required for GitHub Release creation
+      attestations: write    # Required for actions/attest-build-provenance
+      statuses: read         # Required to query commit statuses for Stryker quality gate
+      actions: read          # Required to query workflow runs for Stryker quality gate
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # ─── Resolve version ──────────────────────────────────────────────────────
+      # Priority: workflow_dispatch input → git tag → fallback to Directory.Build.props
+      - name: Resolve version
+        id: version
+        env:
+          INPUT_VERSION: ${{ inputs.version }}
+        run: |
+          if [ -n "$INPUT_VERSION" ]; then
+            echo "VERSION=$INPUT_VERSION" >> $GITHUB_OUTPUT
+            echo "Resolved version from workflow_dispatch input: $INPUT_VERSION"
+          elif [[ "$GITHUB_REF" == refs/tags/v* ]]; then
+            VERSION="${GITHUB_REF_NAME#v}"
+            echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+            echo "Resolved version from git tag: $VERSION"
+          else
+            VERSION=$(grep -oP '(?<=<VersionPrefix>)[^<]+' Directory.Build.props || echo "1.0.0")
+            echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+            echo "Resolved version from Directory.Build.props: $VERSION"
+          fi
+
+      # ─── Enforce Stryker Mutation Testing Quality Gate ────────────────────────
+      - name: Enforce Stryker Mutation Quality Gate
+        id: mutation-gate
+        uses: actions/github-script@v7
+        env:
+          STRYKER_GATE_MODE: enforce
+        with:
+          script: |
+            const verifyMutationGate = require('./scripts/verify-mutation-gate.js');
+            await verifyMutationGate({ github, context, core, mode: 'enforce' });
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+
+      # ─── Strong Name key ──────────────────────────────────────────────────────
+      - name: Restore Strong Name key
+        env:
+          SNK_KEY: ${{ secrets.SNK_KEY }}
+        run: |
+          if [ -n "$SNK_KEY" ]; then
+            echo "$SNK_KEY" | tr -d '\n\r ' | base64 --decode > EricksonLopez.Specification.snk
+          fi
+
+      - name: Restore
+        run: dotnet restore EricksonLopez.Specifications.slnx
+
+      - name: Build (Release)
+        run: dotnet build EricksonLopez.Specifications.slnx --no-restore --configuration Release
+
+      # ─── Full test suite before publish ──────────────────────────────────────
+      - name: Run tests before publish
+        run: |
+          dotnet test EricksonLopez.Specifications.slnx \
+            --no-build \
+            --configuration Release \
+            --logger "trx" \
+            --results-directory ./test-results \
+            --collect:"XPlat Code Coverage" \
+            -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover
+
+      - name: Upload coverage to Codecov (publish gate)
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: "**/coverage.opencover.xml"
+          fail_ci_if_error: false
+          flags: publish-gate
+          name: codecov-publish
+
+      # ─── Pack all packages ────────────────────────────────────────────────────
+      - name: Pack All Packages
+        run: |
+          VERSION="${{ steps.version.outputs.VERSION }}"
+          PACK_ARGS="--no-build --configuration Release --output ./nupkgs -p:VersionPrefix=$VERSION -p:TreatWarningsAsErrors=true"
+          dotnet pack src/EricksonLopez.Specification.Abstractions/EricksonLopez.Specification.Abstractions.csproj $PACK_ARGS
+          dotnet pack src/EricksonLopez.Specification/EricksonLopez.Specification.csproj $PACK_ARGS
+          dotnet pack src/EricksonLopez.Specification.Analyzers/EricksonLopez.Specification.Analyzers.csproj $PACK_ARGS
+          dotnet pack src/EricksonLopez.Specification.Dapper/EricksonLopez.Specification.Dapper.csproj $PACK_ARGS
+          dotnet pack src/EricksonLopez.Specification.DapperExtensions/EricksonLopez.Specification.DapperExtensions.csproj $PACK_ARGS
+          dotnet pack src/EricksonLopez.Specification.EntityFrameworkCore/EricksonLopez.Specification.EntityFrameworkCore.csproj $PACK_ARGS
+          dotnet pack src/EricksonLopez.Specification.Generators/EricksonLopez.Specification.Generators.csproj $PACK_ARGS
+          dotnet pack src/EricksonLopez.Specification.Linq/EricksonLopez.Specification.Linq.csproj $PACK_ARGS
+          dotnet pack src/EricksonLopez.Specification.MariaDb/EricksonLopez.Specification.MariaDb.csproj $PACK_ARGS
+          dotnet pack src/EricksonLopez.Specification.MongoDB/EricksonLopez.Specification.MongoDB.csproj $PACK_ARGS
+          dotnet pack src/EricksonLopez.Specification.MsSql/EricksonLopez.Specification.MsSql.csproj $PACK_ARGS
+          dotnet pack src/EricksonLopez.Specification.MySql/EricksonLopez.Specification.MySql.csproj $PACK_ARGS
+          dotnet pack src/EricksonLopez.Specification.Oracle/EricksonLopez.Specification.Oracle.csproj $PACK_ARGS
+          dotnet pack src/EricksonLopez.Specification.PostgreSql/EricksonLopez.Specification.PostgreSql.csproj $PACK_ARGS
+          dotnet pack src/EricksonLopez.Specification.Sql/EricksonLopez.Specification.Sql.csproj $PACK_ARGS
+          dotnet pack src/EricksonLopez.Specification.Sqlite/EricksonLopez.Specification.Sqlite.csproj $PACK_ARGS
+          echo "Packed packages:"
+          ls -la ./nupkgs/
+
+      # ─── Sigstore Provenance Attestation ─────────────────────────────────────
+      - name: Generate Sigstore Provenance Attestation
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-path: './nupkgs/*.nupkg'
+
+      # ─── NuGet.org publish via OIDC ──────────────────────────────────────────
+      - name: NuGet login (OIDC)
+        uses: NuGet/login@v1
+        id: login
+        with:
+          user: ericksonlopezf
+
+      - name: Push to NuGet.org
+        run: >
+          dotnet nuget push ./nupkgs/*.nupkg
+          --api-key ${{ steps.login.outputs.NUGET_API_KEY }}
+          --source https://api.nuget.org/v3/index.json
+          --skip-duplicate
+
+      # ─── GitHub Release ───────────────────────────────────────────────────────
+      - name: Create GitHub Release (tag-triggered only)
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.version.outputs.VERSION }}
+          name: Release ${{ steps.version.outputs.VERSION }}
+          generate_release_notes: false
+          body: |
+            ## Ecosystem Packages in this release
+
+            | Package | Version |
+            |---------|---------|
+            | `EricksonLopez.Specification.Abstractions` | `${{ steps.version.outputs.VERSION }}` |
+            | `EricksonLopez.Specification` | `${{ steps.version.outputs.VERSION }}` |
+            | `EricksonLopez.Specification.Analyzers` | `${{ steps.version.outputs.VERSION }}` |
+            | `EricksonLopez.Specification.Dapper` | `${{ steps.version.outputs.VERSION }}` |
+            | `EricksonLopez.Specification.DapperExtensions` | `${{ steps.version.outputs.VERSION }}` |
+            | `EricksonLopez.Specification.EntityFrameworkCore` | `${{ steps.version.outputs.VERSION }}` |
+            | `EricksonLopez.Specification.Generators` | `${{ steps.version.outputs.VERSION }}` |
+            | `EricksonLopez.Specification.Linq` | `${{ steps.version.outputs.VERSION }}` |
+            | `EricksonLopez.Specification.MariaDb` | `${{ steps.version.outputs.VERSION }}` |
+            | `EricksonLopez.Specification.MongoDB` | `${{ steps.version.outputs.VERSION }}` |
+            | `EricksonLopez.Specification.MsSql` | `${{ steps.version.outputs.VERSION }}` |
+            | `EricksonLopez.Specification.MySql` | `${{ steps.version.outputs.VERSION }}` |
+            | `EricksonLopez.Specification.Oracle` | `${{ steps.version.outputs.VERSION }}` |
+            | `EricksonLopez.Specification.PostgreSql` | `${{ steps.version.outputs.VERSION }}` |
+            | `EricksonLopez.Specification.Sql` | `${{ steps.version.outputs.VERSION }}` |
+            | `EricksonLopez.Specification.Sqlite` | `${{ steps.version.outputs.VERSION }}` |
+
+            ---
+
+            For detailed changes, see [CHANGELOG.md](https://github.com/ericksonlopezf/dotnet-specification/blob/${{ github.ref_name }}/CHANGELOG.md).
+          files: ./nupkgs/*.nupkg
+          draft: false
+          prerelease: ${{ contains(steps.version.outputs.VERSION, '-') }}

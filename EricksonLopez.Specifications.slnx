@@ -1,0 +1,47 @@
+<Solution>
+  <Folder Name="/benchmarks/">
+    <Project Path="benchmarks/EricksonLopez.Specification.Benchmarks/EricksonLopez.Specification.Benchmarks.csproj" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/EricksonLopez.Specification.Abstractions/EricksonLopez.Specification.Abstractions.csproj" />
+    <Project Path="src/EricksonLopez.Specification.Analyzers/EricksonLopez.Specification.Analyzers.csproj" />
+    <Project Path="src/EricksonLopez.Specification.Dapper/EricksonLopez.Specification.Dapper.csproj" />
+    <Project Path="src/EricksonLopez.Specification.DapperExtensions/EricksonLopez.Specification.DapperExtensions.csproj" />
+    <Project Path="src/EricksonLopez.Specification.EntityFrameworkCore/EricksonLopez.Specification.EntityFrameworkCore.csproj" />
+    <Project Path="src/EricksonLopez.Specification.Generators/EricksonLopez.Specification.Generators.csproj" />
+    <Project Path="src/EricksonLopez.Specification.Linq/EricksonLopez.Specification.Linq.csproj" />
+    <Project Path="src/EricksonLopez.Specification.MariaDb/EricksonLopez.Specification.MariaDb.csproj" />
+    <Project Path="src/EricksonLopez.Specification.MsSql/EricksonLopez.Specification.MsSql.csproj" />
+    <Project Path="src/EricksonLopez.Specification.MySql/EricksonLopez.Specification.MySql.csproj" />
+    <Project Path="src/EricksonLopez.Specification.Oracle/EricksonLopez.Specification.Oracle.csproj" />
+    <Project Path="src/EricksonLopez.Specification.PostgreSql/EricksonLopez.Specification.PostgreSql.csproj" />
+    <Project Path="src/EricksonLopez.Specification.Sql/EricksonLopez.Specification.Sql.csproj" />
+    <Project Path="src/EricksonLopez.Specification.Sqlite/EricksonLopez.Specification.Sqlite.csproj" />
+    <Project Path="src/EricksonLopez.Specification.MongoDB/EricksonLopez.Specification.MongoDB.csproj" />
+    <Project Path="src/EricksonLopez.Specification/EricksonLopez.Specification.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/EricksonLopez.Specification.Analyzers.Tests/EricksonLopez.Specification.Analyzers.Tests.csproj" />
+    <Project Path="tests/EricksonLopez.Specification.Dapper.Tests/EricksonLopez.Specification.Dapper.Tests.csproj" />
+    <Project Path="tests/EricksonLopez.Specification.DapperExtensions.Tests/EricksonLopez.Specification.DapperExtensions.Tests.csproj" />
+    <Project Path="tests/EricksonLopez.Specification.EntityFrameworkCore.Tests/EricksonLopez.Specification.EntityFrameworkCore.Tests.csproj" />
+    <Project Path="tests/EricksonLopez.Specification.Generators.Tests/EricksonLopez.Specification.Generators.Tests.csproj" />
+    <Project Path="tests/EricksonLopez.Specification.MongoDB.IntegrationTests/EricksonLopez.Specification.MongoDB.IntegrationTests.csproj" />
+    <Project Path="tests/EricksonLopez.Specification.MongoDB.Tests/EricksonLopez.Specification.MongoDB.Tests.csproj" />
+    <Project Path="tests/EricksonLopez.Specification.MariaDb.Tests/EricksonLopez.Specification.MariaDb.Tests.csproj" />
+    <Project Path="tests/EricksonLopez.Specification.MsSql.Tests/EricksonLopez.Specification.MsSql.Tests.csproj" />
+    <Project Path="tests/EricksonLopez.Specification.MySql.Tests/EricksonLopez.Specification.MySql.Tests.csproj" />
+    <Project Path="tests/EricksonLopez.Specification.Oracle.Tests/EricksonLopez.Specification.Oracle.Tests.csproj" />
+    <Project Path="tests/EricksonLopez.Specification.PostgreSql.IntegrationTests/EricksonLopez.Specification.PostgreSql.IntegrationTests.csproj" />
+    <Project Path="tests/EricksonLopez.Specification.PostgreSql.Tests/EricksonLopez.Specification.PostgreSql.Tests.csproj" />
+    <Project Path="tests/EricksonLopez.Specification.Sql.Tests/EricksonLopez.Specification.Sql.Tests.csproj" />
+    <Project Path="tests/EricksonLopez.Specification.Sqlite.Tests/EricksonLopez.Specification.Sqlite.Tests.csproj" />
+    <Project Path="tests/EricksonLopez.Specification.Tests/EricksonLopez.Specification.Tests.csproj" />
+    <Project Path="tests/EricksonLopez.Specification.AotSmokeTest/EricksonLopez.Specification.AotSmokeTest.csproj" />
+  </Folder>
+  <Folder Name="/samples/">
+    <Project Path="samples/NativeAotDapper/NativeAotDapper.csproj" />
+    <Project Path="samples/Showcase/EricksonLopez.Specification.Showcase.csproj" />
+  </Folder>
+</Solution>
+
