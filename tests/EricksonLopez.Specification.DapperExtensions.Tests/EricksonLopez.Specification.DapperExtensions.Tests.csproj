@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="xunit" />
+    <PackageReference Include="xunit.runner.visualstudio" />
+    <PackageReference Include="AwesomeAssertions" />
+    <PackageReference Include="NSubstitute" />
+    <PackageReference Include="coverlet.collector" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\EricksonLopez.Specification\EricksonLopez.Specification.csproj" />
+    <ProjectReference Include="..\..\src\EricksonLopez.Specification.Sql\EricksonLopez.Specification.Sql.csproj" />
+    <ProjectReference Include="..\..\src\EricksonLopez.Specification.DapperExtensions\EricksonLopez.Specification.DapperExtensions.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="..\EricksonLopez.Specification.Dapper.Tests\FakeDbConnection.cs" Link="FakeDbConnection.cs" />
+  </ItemGroup>
+</Project>

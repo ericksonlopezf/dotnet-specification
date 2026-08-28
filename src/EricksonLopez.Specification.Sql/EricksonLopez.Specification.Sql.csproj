@@ -1,0 +1,34 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <AssemblyName>EricksonLopez.Specification.Sql</AssemblyName>
+    <RootNamespace>EricksonLopez.Specification.Sql</RootNamespace>
+    <PackageId>EricksonLopez.Specification.Sql</PackageId>
+    <Description>SQL generation layer for EricksonLopez.Specification. Translates QuerySpec&lt;T&gt; to a provider-agnostic SQL AST and parameterized SQL strings. No EF Core or Dapper dependency.</Description>
+    <PackageTags>$(CommonPackageTags);sql;sql-generation;sql-translator;sql-ast;query-builder;aot</PackageTags>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Class1.cs" />
+    <ProjectReference Include="..\EricksonLopez.Specification\EricksonLopez.Specification.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="EricksonLopez.Specification.MsSql" />
+    <InternalsVisibleTo Include="EricksonLopez.Specification.PostgreSql" />
+    <InternalsVisibleTo Include="EricksonLopez.Specification.MySql" />
+    <InternalsVisibleTo Include="EricksonLopez.Specification.MariaDb" />
+    <InternalsVisibleTo Include="EricksonLopez.Specification.Sqlite" />
+    <InternalsVisibleTo Include="EricksonLopez.Specification.Oracle" />
+    <InternalsVisibleTo Include="EricksonLopez.Specification.Dapper" />
+    <InternalsVisibleTo Include="EricksonLopez.Specification.Sql.Tests" />
+    <InternalsVisibleTo Include="EricksonLopez.Specification.MsSql.Tests" />
+    <InternalsVisibleTo Include="EricksonLopez.Specification.PostgreSql.Tests" />
+    <InternalsVisibleTo Include="EricksonLopez.Specification.MySql.Tests" />
+    <InternalsVisibleTo Include="EricksonLopez.Specification.MariaDb.Tests" />
+    <InternalsVisibleTo Include="EricksonLopez.Specification.Sqlite.Tests" />
+    <InternalsVisibleTo Include="EricksonLopez.Specification.Oracle.Tests" />
+    <InternalsVisibleTo Include="EricksonLopez.Specification.Dapper.Tests" />
+    <InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
+  </ItemGroup>
+</Project>

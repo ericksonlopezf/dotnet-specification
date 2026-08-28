@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <Description>MongoDB driver integration for EricksonLopez.Specification. Compiles ISpecification and QuerySpec descriptors into native MongoDB FilterDefinition and SortDefinition.</Description>
+    <PackageTags>$(CommonPackageTags);mongodb;nosql;document-database;repository-pattern;aot</PackageTags>
+    <NoWarn>$(NoWarn);CA1515</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\EricksonLopez.Specification.Abstractions\EricksonLopez.Specification.Abstractions.csproj" />
+    <ProjectReference Include="..\EricksonLopez.Specification.Linq\EricksonLopez.Specification.Linq.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MongoDB.Driver" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+  </ItemGroup>
+</Project>

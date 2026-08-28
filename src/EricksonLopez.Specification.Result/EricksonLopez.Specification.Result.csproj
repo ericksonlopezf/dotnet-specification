@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <IsAotCompatible>true</IsAotCompatible>
+    <PackageTags>$(CommonPackageTags);result-pattern;railway-oriented-programming;functional-programming;error-handling;aot</PackageTags>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="EricksonLopez.Result" />
+    <ProjectReference Include="..\EricksonLopez.Specification.Abstractions\EricksonLopez.Specification.Abstractions.csproj" />
+  </ItemGroup>
+
+</Project>

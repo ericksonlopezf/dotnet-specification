@@ -1,0 +1,35 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <AssemblyName>EricksonLopez.Specification.Tests</AssemblyName>
+    <RootNamespace>EricksonLopez.Specification.Tests</RootNamespace>
+    <IsPackable>false</IsPackable>
+    <Nullable>enable</Nullable>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <NoWarn>$(NoWarn);CA1707;CA1515</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="xunit" />
+    <PackageReference Include="xunit.runner.visualstudio">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="AwesomeAssertions" />
+    <PackageReference Include="NSubstitute" />
+    <PackageReference Include="FsCheck.Xunit" />
+    <PackageReference Include="AutoFixture.Xunit2" />
+    <PackageReference Include="coverlet.collector">
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\EricksonLopez.Specification.Abstractions\EricksonLopez.Specification.Abstractions.csproj" />
+    <ProjectReference Include="..\..\src\EricksonLopez.Specification\EricksonLopez.Specification.csproj" />
+    <ProjectReference Include="..\..\src\EricksonLopez.Specification.Linq\EricksonLopez.Specification.Linq.csproj" />
+  </ItemGroup>
+
+</Project>
+

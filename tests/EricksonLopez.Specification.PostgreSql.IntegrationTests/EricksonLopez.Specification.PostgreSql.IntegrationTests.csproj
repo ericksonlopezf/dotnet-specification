@@ -1,0 +1,39 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <AssemblyName>EricksonLopez.Specification.PostgreSql.IntegrationTests</AssemblyName>
+    <RootNamespace>EricksonLopez.Specification.PostgreSql.IntegrationTests</RootNamespace>
+    <IsPackable>false</IsPackable>
+    <Nullable>enable</Nullable>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <!-- Integration tests require a live PostgreSQL server via Docker -->
+    <!-- Run with: docker-compose up -d (see docker-compose.yml) -->
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="xunit" />
+    <PackageReference Include="xunit.runner.visualstudio">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="AwesomeAssertions" />
+    <PackageReference Include="coverlet.collector">
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Dapper" />
+    <PackageReference Include="Npgsql" />
+    <PackageReference Include="Testcontainers.PostgreSql" />
+    <PackageReference Include="Xunit.SkippableFact" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\EricksonLopez.Specification\EricksonLopez.Specification.csproj" />
+    <ProjectReference Include="..\..\src\EricksonLopez.Specification.Sql\EricksonLopez.Specification.Sql.csproj" />
+    <ProjectReference Include="..\..\src\EricksonLopez.Specification.PostgreSql\EricksonLopez.Specification.PostgreSql.csproj" />
+    <ProjectReference Include="..\..\src\EricksonLopez.Specification.Dapper\EricksonLopez.Specification.Dapper.csproj" />
+  </ItemGroup>
+
+</Project>
+
+

@@ -1,0 +1,69 @@
+# EditorConfig for EricksonLopez.Specification
+# Documentation: https://editorconfig.org / https://learn.microsoft.com/dotnet/fundamentals/code-analysis/configuration-files
+
+root = true
+
+[*]
+indent_style = space
+indent_size = 4
+end_of_line = lf
+charset = utf-8
+trim_trailing_whitespace = true
+insert_final_newline = true
+
+[*.cs]
+# Standard C# Style Rules
+csharp_style_namespace_declarations = file_scoped:warning
+csharp_style_expression_bodied_methods = when_on_single_line:suggestion
+csharp_style_expression_bodied_constructors = when_on_single_line:suggestion
+csharp_style_expression_bodied_properties = true:suggestion
+csharp_style_var_for_built_in_types = true:suggestion
+csharp_style_var_when_type_is_apparent = true:suggestion
+dotnet_sort_system_directives_first = true
+dotnet_separate_import_directive_groups = false
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Mandatory Analyzers Severity Configuration
+# ─────────────────────────────────────────────────────────────────────────────
+# Naming conventions
+dotnet_diagnostic.IDE1006.severity = warning
+dotnet_diagnostic.CA1707.severity = warning
+
+# Performance & Architecture
+dotnet_diagnostic.CA1852.severity = warning
+dotnet_diagnostic.CA1305.severity = warning
+
+# Obsolete / Deprecation Rules (Zero Tolerance)
+dotnet_diagnostic.CS0618.severity = error
+dotnet_diagnostic.CS0619.severity = error
+
+# Documentation Enforcement
+dotnet_diagnostic.CS1591.severity = warning
+dotnet_diagnostic.CS1573.severity = warning
+
+# Testing Rules
+dotnet_diagnostic.xUnit1051.severity = warning
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Test & Benchmark Projects: Living Executable Specifications
+# As established in ADR-026, test methods follow the Osherove naming pattern:
+# [Method/UnitOfWork]_[Scenario/StateUnderTest]_[ExpectedBehavior]
+# CA1707, IDE1006, and CS1591 are locally disabled for test clarity in CI/CD reports.
+# ─────────────────────────────────────────────────────────────────────────────
+[{tests,benchmarks}/**/*.cs]
+dotnet_diagnostic.IDE1006.severity = none
+dotnet_diagnostic.CA1707.severity = none
+dotnet_diagnostic.CA1515.severity = none
+dotnet_diagnostic.CS1591.severity = none
+dotnet_diagnostic.CS0618.severity = error
+dotnet_diagnostic.CS0619.severity = error
+
+[{**/*Tests.cs,**/*IntegrationTests.cs,**/*Benchmarks.cs}]
+dotnet_diagnostic.IDE1006.severity = none
+dotnet_diagnostic.CA1707.severity = none
+dotnet_diagnostic.CA1515.severity = none
+dotnet_diagnostic.CS1591.severity = none
+dotnet_diagnostic.CS0618.severity = error
+dotnet_diagnostic.CS0619.severity = error
+
+

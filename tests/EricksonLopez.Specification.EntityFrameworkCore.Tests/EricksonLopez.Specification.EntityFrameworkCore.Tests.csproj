@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\EricksonLopez.Specification.Abstractions\EricksonLopez.Specification.Abstractions.csproj" />
+    <ProjectReference Include="..\..\src\EricksonLopez.Specification.Linq\EricksonLopez.Specification.Linq.csproj" />
+    <ProjectReference Include="..\..\src\EricksonLopez.Specification.EntityFrameworkCore\EricksonLopez.Specification.EntityFrameworkCore.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="xunit" />
+    <PackageReference Include="xunit.runner.visualstudio" />
+    <PackageReference Include="AwesomeAssertions" />
+    <PackageReference Include="NSubstitute" />
+    <PackageReference Include="coverlet.collector" />
+  </ItemGroup>
+</Project>
+

@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <AssemblyName>EricksonLopez.Specification.Linq</AssemblyName>
+    <RootNamespace>EricksonLopez.Specification.Linq</RootNamespace>
+    <PackageId>EricksonLopez.Specification.Linq</PackageId>
+    <Description>LINQ/IQueryable integration for EricksonLopez.Specification. Applies QuerySpec&lt;T&gt; to IQueryable&lt;T&gt; sources. Compatible with EF Core, LINQ to Objects, and any IQueryable provider.</Description>
+    <PackageTags>$(CommonPackageTags);linq;iqueryable;queryable;query-evaluation;aot</PackageTags>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Class1.cs" />
+    <ProjectReference Include="..\EricksonLopez.Specification\EricksonLopez.Specification.csproj" />
+  </ItemGroup>
+
+</Project>
