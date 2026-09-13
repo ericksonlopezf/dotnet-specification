@@ -2,7 +2,7 @@
 <html lang='en'>
 <head>
 <meta charset='utf-8' />
-<title>EricksonLopez.Specification.Benchmarks.SpecificationCreationBenchmarks-20260906-064213</title>
+<title>EricksonLopez.Specification.Benchmarks.SpecificationCreationBenchmarks-20260913-070141</title>
 
 <style type="text/css">
 	table { border-collapse: collapse; display: block; width: 100%; overflow: auto; }
@@ -13,22 +13,22 @@
 </head>
 <body>
 <pre><code>
-BenchmarkDotNet v0.14.0, Ubuntu 24.04.4 LTS (Noble Numbat)
+BenchmarkDotNet v0.14.0, Ubuntu 24.04.5 LTS (Noble Numbat)
 AMD EPYC 9V74, 1 CPU, 4 logical and 2 physical cores
-.NET SDK 10.0.400
-  [Host]   : .NET 10.0.11 (10.0.1126.37416), X64 RyuJIT AVX-512F+CD+BW+DQ+VL+VBMI
-  ShortRun : .NET 10.0.11 (10.0.1126.37416), X64 RyuJIT AVX-512F+CD+BW+DQ+VL+VBMI
+.NET SDK 10.0.401
+  [Host]   : .NET 10.0.12 (10.0.1226.42308), X64 RyuJIT AVX-512F+CD+BW+DQ+VL+VBMI
+  ShortRun : .NET 10.0.12 (10.0.1226.42308), X64 RyuJIT AVX-512F+CD+BW+DQ+VL+VBMI
 </code></pre>
 <pre><code>Job=ShortRun  IterationCount=3  LaunchCount=1  
 WarmupCount=3  
 </code></pre>
 
 <table>
-<thead><tr><th>Method                               </th><th>Mean</th><th>Ratio</th><th>Gen0</th><th>Allocated</th><th>Alloc Ratio</th>
+<thead><tr><th>Method                               </th><th>Mean</th><th>Ratio</th><th>RatioSD</th><th>Gen0</th><th>Allocated</th><th>Alloc Ratio</th>
 </tr>
-</thead><tbody><tr><td>&#39;Manual lambda&#39;</td><td>431.7 ns</td><td>1.00</td><td>0.0477</td><td>800 B</td><td>1.00</td>
-</tr><tr><td>&#39;EricksonLopez: Specification.ToExpression&#39;</td><td>1,019.2 ns</td><td>2.36</td><td>0.1278</td><td>2152 B</td><td>2.69</td>
-</tr><tr><td>&#39;EricksonLopez: Spec.For factory&#39;</td><td>1,030.4 ns</td><td>2.39</td><td>0.1278</td><td>2168 B</td><td>2.71</td>
+</thead><tbody><tr><td>&#39;Manual lambda&#39;</td><td>416.2 ns</td><td>1.00</td><td>0.02</td><td>0.0477</td><td>800 B</td><td>1.00</td>
+</tr><tr><td>&#39;EricksonLopez: Specification.ToExpression&#39;</td><td>981.6 ns</td><td>2.36</td><td>0.03</td><td>0.1278</td><td>2152 B</td><td>2.69</td>
+</tr><tr><td>&#39;EricksonLopez: Spec.For factory&#39;</td><td>984.2 ns</td><td>2.37</td><td>0.03</td><td>0.1278</td><td>2168 B</td><td>2.71</td>
 </tr></tbody></table>
 </body>
 </html>
