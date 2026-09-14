@@ -33,7 +33,7 @@
     <!-- Benchmarks -->
     <PackageVersion Include="BenchmarkDotNet" Version="0.14.0" />
     <!-- Infrastructure -->
-    <PackageVersion Include="Dapper" Version="2.1.79" />
+    <PackageVersion Include="Dapper" Version="2.1.86" />
     <PackageVersion Include="Npgsql" Version="10.0.3" />
     <!-- Competitor benchmarks comparison -->
     <PackageVersion Include="Ardalis.Specification" Version="9.0.0" />
