@@ -113,4 +113,72 @@ public sealed class PotentialClientSideEvaluationAnalyzerTests
 
         await AnalyzerTestHelper.VerifyAnalyzerAsync<PotentialClientSideEvaluationAnalyzer>(code);
     }
+
+    [Fact]
+    public async Task Analyzer_CustomMethodMatchingKnownTranslatableName_NoDiagnostic()
+    {
+        var code = """
+            using System.Linq.Expressions;
+
+            public static class CustomHelper
+            {
+                public static bool Contains(string s) => s.Length > 5;
+            }
+
+            public sealed class SpecWithCustomContains : Specification<string>
+            {
+                public override Expression<Func<string, bool>> BuildExpression()
+                {
+                    return x => CustomHelper.Contains(x);
+                }
+            }
+            """;
+
+        await AnalyzerTestHelper.VerifyAnalyzerAsync<PotentialClientSideEvaluationAnalyzer>(code);
+    }
+
+    [Fact]
+    public async Task Analyzer_UserDefinedOperator_NoDiagnostic()
+    {
+        var code = """
+            using System.Linq.Expressions;
+
+            public struct CustomMoney
+            {
+                public int Amount { get; set; }
+                public static bool operator ==(CustomMoney left, CustomMoney right) => left.Amount == right.Amount;
+                public static bool operator !=(CustomMoney left, CustomMoney right) => !(left == right);
+                public override bool Equals(object obj) => false;
+                public override int GetHashCode() => 0;
+            }
+
+            public sealed class SpecWithOperator : Specification<CustomMoney>
+            {
+                public override Expression<Func<CustomMoney, bool>> BuildExpression()
+                {
+                    return x => x == default(CustomMoney);
+                }
+            }
+            """;
+
+        await AnalyzerTestHelper.VerifyAnalyzerAsync<PotentialClientSideEvaluationAnalyzer>(code);
+    }
+
+    [Fact]
+    public async Task Analyzer_UnresolvableInvocation_NoDiagnostic()
+    {
+        var code = """
+            using System.Linq.Expressions;
+
+            public sealed class SpecWithUnresolvable : Specification<string>
+            {
+                public override Expression<Func<string, bool>> BuildExpression()
+                {
+                    return x => NonExistentMethod(x);
+                }
+            }
+            """;
+
+        await AnalyzerTestHelper.VerifyAnalyzerAsync<PotentialClientSideEvaluationAnalyzer>(code);
+    }
 }

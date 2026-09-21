@@ -717,6 +717,109 @@ public class ExpressionEqualityComparerTests
         _comparer.Equals(initList1, initList2).Should().BeFalse();
     }
 
+    public static int StaticField1 = 42;
+    public static int StaticField2 = 42;
+    public static int StaticProp1 => 100;
+    public static int StaticProp2 => 100;
+    private static int s_changingCounter;
+    public static int ChangingProp => System.Threading.Interlocked.Increment(ref s_changingCounter);
+    public static string? StaticNullProp => null;
+    public static string? StaticNullField = null;
+
+    [Fact]
+    public void Equals_StaticMemberAccess_ComparesValues()
+    {
+        Expression<Func<int>> expr1 = () => StaticProp1;
+        Expression<Func<int>> expr2 = () => StaticProp1;
+        _comparer.Equals(expr1.Body, expr2.Body).Should().BeTrue();
+
+        Expression<Func<int>> field1 = () => StaticField1;
+        Expression<Func<int>> field2 = () => StaticField1;
+        _comparer.Equals(field1.Body, field2.Body).Should().BeTrue();
+
+        Expression<Func<ExpressionEqualityComparerTests_CustomType, int>> inst = x => x.Value;
+        _comparer.Equals(expr1.Body, inst.Body).Should().BeFalse();
+        _comparer.Equals(inst.Body, expr1.Body).Should().BeFalse();
+    }
+
+    [Fact]
+    public void Equals_StaticMember_ChangingValue_ReturnsFalse()
+    {
+        // When static property returns different values upon consecutive calls,
+        // EqualsMember must return false. If the static value check block were removed,
+        // it would fall through to comparing expressions (null == null) and return true.
+        Expression<Func<int>> expr1 = () => ChangingProp;
+        Expression<Func<int>> expr2 = () => ChangingProp;
+        _comparer.Equals(expr1.Body, expr2.Body).Should().BeFalse();
+    }
+
+    [Fact]
+    public void Equals_StaticMember_NullValues_ReturnsTrue()
+    {
+        Expression<Func<string?>> expr1 = () => StaticNullProp;
+        Expression<Func<string?>> expr2 = () => StaticNullProp;
+        _comparer.Equals(expr1.Body, expr2.Body).Should().BeTrue();
+
+        Expression<Func<string?>> field1 = () => StaticNullField;
+        Expression<Func<string?>> field2 = () => StaticNullField;
+        _comparer.Equals(field1.Body, field2.Body).Should().BeTrue();
+    }
+
+    [Fact]
+    public void GetStaticMemberValue_InstancePropertyAndNullGetter_ReturnsNull()
+    {
+        var method = typeof(ExpressionEqualityComparer).GetMethod("GetStaticMemberValue", BindingFlags.NonPublic | BindingFlags.Static)!;
+
+        // Instance property should return null
+        var instanceProp = typeof(Customer).GetProperty(nameof(Customer.Name))!;
+        var resultInstance = method.Invoke(null, new object[] { instanceProp });
+        resultInstance.Should().BeNull();
+
+        // Write-only property with null GetMethod should return null
+        var writeOnlyProp = typeof(ExpressionEqualityComparerTests_CustomType).GetProperty(nameof(ExpressionEqualityComparerTests_CustomType.WriteOnlyValue))!;
+        var resultWriteOnly = method.Invoke(null, new object[] { writeOnlyProp });
+        resultWriteOnly.Should().BeNull();
+
+        // Non-property, non-field member should return null
+        var dummyMethod = typeof(ExpressionEqualityComparerTests).GetMethod(nameof(DummyAdd))!;
+        var resultMethod = method.Invoke(null, new object[] { dummyMethod });
+        resultMethod.Should().BeNull();
+    }
+
+    [Fact]
+    public void Equals_WhenDepthExceedsMaxDepth_ThrowsInvalidOperationException()
+    {
+        Expression expr1 = Expression.Constant(1);
+        Expression expr2 = Expression.Constant(1);
+        for (var i = 0; i < 515; i++)
+        {
+            expr1 = Expression.Negate(expr1);
+            expr2 = Expression.Negate(expr2);
+        }
+
+        var act = () => _comparer.Equals(expr1, expr2);
+        act.Should().Throw<InvalidOperationException>()
+            .WithMessage("Expression tree exceeds maximum supported equality depth of 512.");
+
+        // Depth should reset after exception
+        Expression<Func<int, bool>> normal = x => x == 1;
+        _comparer.Equals(normal, normal).Should().BeTrue();
+    }
+
+    [Fact]
+    public void Equals_WhenDepthAtMaxDepth_DoesNotThrow()
+    {
+        Expression expr1 = Expression.Constant(1);
+        Expression expr2 = Expression.Constant(1);
+        for (var i = 0; i < 511; i++)
+        {
+            expr1 = Expression.Negate(expr1);
+            expr2 = Expression.Negate(expr2);
+        }
+
+        _comparer.Equals(expr1, expr2).Should().BeTrue();
+    }
+
     public static int DummyAdd(int a, int b) => a + b;
     public static int DummyAdd2(int a, int b) => a + b;
     public static int DummyNeg(int a) => -a;
@@ -738,6 +841,7 @@ public class ExpressionEqualityComparerTests_CustomType
 
     public int Value { get; set; }
     public int OtherValue { get; set; }
+    public int WriteOnlyValue { set { } }
     public ExpressionEqualityComparerTests_ChildType Child { get; set; } = new();
     public List<int> List { get; set; } = new();
 }

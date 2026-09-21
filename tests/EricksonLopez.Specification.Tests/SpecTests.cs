@@ -63,6 +63,48 @@ public sealed class SpecTests
     }
 
     [Fact]
+    public void Between_WhenLowerEqualsUpper_CreatesValidSingleValueRangeSpecification()
+    {
+        var spec = Spec.Between<Customer, decimal>(c => c.CreditLimit, 500m, 500m);
+        spec.IsSatisfiedBy(new Customer { CreditLimit = 500m }).Should().BeTrue();
+        spec.IsSatisfiedBy(new Customer { CreditLimit = 499.99m }).Should().BeFalse();
+        spec.IsSatisfiedBy(new Customer { CreditLimit = 500.01m }).Should().BeFalse();
+    }
+
+    [Fact]
+    public void Between_WhenLowerGreaterThanUpper_ThrowsArgumentException()
+    {
+        var act = () => Spec.Between<Customer, decimal>(c => c.CreditLimit, 500m, 100m);
+        act.Should().Throw<ArgumentException>()
+            .WithParameterName("lower")
+            .WithMessage("Lower bound '500' cannot be greater than upper bound '100'.*");
+    }
+
+    [Fact]
+    public void Between_Nullable_WhenLowerEqualsUpper_CreatesValidSingleValueRangeSpecification()
+    {
+        var spec = Spec.Between<Customer, decimal>(c => (decimal?)c.CreditLimit, 500m, 500m);
+        spec.IsSatisfiedBy(new Customer { CreditLimit = 500m }).Should().BeTrue();
+        spec.IsSatisfiedBy(new Customer { CreditLimit = 499.99m }).Should().BeFalse();
+    }
+
+    [Fact]
+    public void Between_Nullable_WhenLowerGreaterThanUpper_ThrowsArgumentException()
+    {
+        var act = () => Spec.Between<Customer, decimal>(c => (decimal?)c.CreditLimit, 500m, 100m);
+        act.Should().Throw<ArgumentException>()
+            .WithParameterName("lower")
+            .WithMessage("Lower bound '500' cannot be greater than upper bound '100'.*");
+    }
+
+    [Fact]
+    public void Between_Nullable_WithNullSelector_ThrowsArgumentNullException()
+    {
+        var act = () => Spec.Between<Customer, int>((Expression<Func<Customer, int?>>)null!, 1, 10);
+        act.Should().Throw<ArgumentNullException>().Which.ParamName.Should().Be("propertySelector");
+    }
+
+    [Fact]
     public void BetweenExtensions_EvaluatesCorrectly()
     {
         25.Between(18, 65).Should().BeTrue();
@@ -202,6 +244,15 @@ public sealed class SpecTests
     }
 
     [Fact]
+    public void All_WithArrayPassedAsEnumerable_ReturnsComposite()
+    {
+        IEnumerable<Specification<Customer>> array = new[] { Spec.For<Customer>(c => c.IsActive) };
+        var spec = Spec.All(array);
+        spec.IsSatisfiedBy(new Customer { IsActive = true }).Should().BeTrue();
+        spec.IsSatisfiedBy(new Customer { IsActive = false }).Should().BeFalse();
+    }
+
+    [Fact]
     public void All_WithEmptySpecifications_ReturnsAlwaysTrueSpecification()
     {
         var spec = Spec.All<Customer>();
@@ -251,6 +302,15 @@ public sealed class SpecTests
     {
         var act = () => Spec.Any<Customer>(null!);
         act.Should().Throw<ArgumentNullException>();
+    }
+
+    [Fact]
+    public void Any_WithArrayPassedAsEnumerable_ReturnsComposite()
+    {
+        IEnumerable<Specification<Customer>> array = new[] { Spec.For<Customer>(c => c.IsActive) };
+        var spec = Spec.Any(array);
+        spec.IsSatisfiedBy(new Customer { IsActive = true }).Should().BeTrue();
+        spec.IsSatisfiedBy(new Customer { IsActive = false }).Should().BeFalse();
     }
 
     [Fact]
@@ -331,7 +391,7 @@ public sealed class SpecTests
     {
         IEnumerable<Specification<Customer>> specs = null!;
         var act = () => Spec.All(specs);
-        act.Should().Throw<ArgumentNullException>();
+        act.Should().Throw<ArgumentNullException>().Which.ParamName.Should().Be("specifications");
     }
 
     [Fact]
@@ -369,7 +429,7 @@ public sealed class SpecTests
     {
         IEnumerable<Specification<Customer>> specs = null!;
         var act = () => Spec.Any(specs);
-        act.Should().Throw<ArgumentNullException>();
+        act.Should().Throw<ArgumentNullException>().Which.ParamName.Should().Be("specifications");
     }
 
     [Fact]

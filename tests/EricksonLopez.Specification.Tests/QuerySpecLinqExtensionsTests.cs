@@ -1,6 +1,8 @@
 // Copyright © Erickson Lopez. MIT License.
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using AwesomeAssertions;
 using EricksonLopez.Specification.Linq;
 using Xunit;
@@ -517,6 +519,178 @@ public sealed class QuerySpecLinqExtensionsTests
 
         var act2 = () => _customers.Count((IExpressionSpecification<Customer>)null!);
         act2.Should().Throw<ArgumentNullException>().Which.ParamName.Should().Be("specification");
+    }
+
+    [Fact]
+    public void Apply_WithProjectedSpecWithoutSelector_ThrowsInvalidOperationException()
+    {
+        var spec = QuerySpec<Customer, string>.Empty;
+        var act = () => _customers.Apply(spec).ToList();
+
+        act.Should().Throw<InvalidOperationException>()
+            .WithMessage("Projected QuerySpec<T, TResult> must define a Selector expression. Use QuerySpec<T> if no projection is needed.");
+    }
+
+    private sealed class NonComparableType
+    {
+        public int Value { get; set; }
+    }
+
+    [Fact]
+    public void Apply_WithNonComparableCursorKeySelector_ThrowsNotSupportedException()
+    {
+        var spec = QuerySpec<Customer>.Empty
+            .SeekAfter(c => new NonComparableType { Value = c.Id }, new NonComparableType { Value = 1 }, 2);
+
+        var act = () => _customers.Apply(spec).ToList();
+
+        act.Should().Throw<NotSupportedException>()
+            .WithMessage("Keyset cursor pagination on type 'NonComparableType' is not supported. Cursor key selector must target a comparable scalar property.");
+    }
+
+    [Fact]
+    public void Where_IQueryable_NullArguments_ThrowsArgumentNullException()
+    {
+        var spec = new ActiveCustomerSpecification();
+        var act1 = () => ((IQueryable<Customer>)null!).Where(spec);
+        act1.Should().Throw<ArgumentNullException>().Which.ParamName.Should().Be("source");
+
+        var throwingSpec = new ThrowingSpecification();
+        var actThrow = () => ((IQueryable<Customer>)null!).Where(throwingSpec);
+        actThrow.Should().Throw<ArgumentNullException>().Which.ParamName.Should().Be("source");
+
+        var act2 = () => _customers.Where((IExpressionSpecification<Customer>)null!);
+        act2.Should().Throw<ArgumentNullException>().Which.ParamName.Should().Be("specification");
+    }
+
+    [Fact]
+    public void All_IQueryable_NullArguments_ThrowsArgumentNullException()
+    {
+        var spec = new ActiveCustomerSpecification();
+        var act1 = () => ((IQueryable<Customer>)null!).All(spec);
+        act1.Should().Throw<ArgumentNullException>().Which.ParamName.Should().Be("source");
+
+        var throwingSpec = new ThrowingSpecification();
+        var actThrow = () => ((IQueryable<Customer>)null!).All(throwingSpec);
+        actThrow.Should().Throw<ArgumentNullException>().Which.ParamName.Should().Be("source");
+
+        var act2 = () => _customers.All((IExpressionSpecification<Customer>)null!);
+        act2.Should().Throw<ArgumentNullException>().Which.ParamName.Should().Be("specification");
+    }
+
+    [Fact]
+    public void FirstOrDefault_IQueryable_NullArguments_ThrowsArgumentNullException()
+    {
+        var spec = new ActiveCustomerSpecification();
+        var act1 = () => ((IQueryable<Customer>)null!).FirstOrDefault(spec);
+        act1.Should().Throw<ArgumentNullException>().Which.ParamName.Should().Be("source");
+
+        var throwingSpec = new ThrowingSpecification();
+        var actThrow = () => ((IQueryable<Customer>)null!).FirstOrDefault(throwingSpec);
+        actThrow.Should().Throw<ArgumentNullException>().Which.ParamName.Should().Be("source");
+
+        var act2 = () => _customers.FirstOrDefault((IExpressionSpecification<Customer>)null!);
+        act2.Should().Throw<ArgumentNullException>().Which.ParamName.Should().Be("specification");
+    }
+
+    [Fact]
+    public void EnumerableExtensions_NullArguments_ThrowsArgumentNullException()
+    {
+        var list = _customers.ToList();
+        var spec = new ActiveCustomerSpecification();
+
+        var actWhere1 = () => ((IEnumerable<Customer>)null!).Where(spec).ToList();
+        actWhere1.Should().Throw<ArgumentNullException>().Which.ParamName.Should().Be("source");
+
+        var actWhere2 = () => list.Where((ISpecification<Customer>)null!).ToList();
+        actWhere2.Should().Throw<ArgumentNullException>().Which.ParamName.Should().Be("specification");
+
+        var actAny1 = () => ((IEnumerable<Customer>)null!).Any(spec);
+        actAny1.Should().Throw<ArgumentNullException>().Which.ParamName.Should().Be("source");
+
+        var actAny2 = () => list.Any((ISpecification<Customer>)null!);
+        actAny2.Should().Throw<ArgumentNullException>().Which.ParamName.Should().Be("specification");
+
+        var actAll1 = () => ((IEnumerable<Customer>)null!).All(spec);
+        actAll1.Should().Throw<ArgumentNullException>().Which.ParamName.Should().Be("source");
+
+        var actAll2 = () => list.All((ISpecification<Customer>)null!);
+        actAll2.Should().Throw<ArgumentNullException>().Which.ParamName.Should().Be("specification");
+
+        var actCount1 = () => ((IEnumerable<Customer>)null!).Count(spec);
+        actCount1.Should().Throw<ArgumentNullException>().Which.ParamName.Should().Be("source");
+
+        var actCount2 = () => list.Count((ISpecification<Customer>)null!);
+        actCount2.Should().Throw<ArgumentNullException>().Which.ParamName.Should().Be("specification");
+
+        var actFirst1 = () => ((IEnumerable<Customer>)null!).FirstOrDefault(spec);
+        actFirst1.Should().Throw<ArgumentNullException>().Which.ParamName.Should().Be("source");
+
+        var actFirst2 = () => list.FirstOrDefault((ISpecification<Customer>)null!);
+        actFirst2.Should().Throw<ArgumentNullException>().Which.ParamName.Should().Be("specification");
+    }
+
+    [Fact]
+    public void Apply_WithCursor_ActuallyFiltersRecords()
+    {
+        var spec = QuerySpec<Customer>.Empty
+            .SeekAfter(c => c.Id, 3, 10);
+        var result = _customers.Apply(spec).ToList();
+        result.Should().HaveCount(2);
+        result[0].Id.Should().Be(4);
+        result[1].Id.Should().Be(5);
+    }
+
+    [Fact]
+    public void BuildCursorPredicate_DirectionAfter_CreatesGreaterThanExpression()
+    {
+        Expression<Func<Customer, object?>> selector = c => (object)c.Id;
+        var cursor = new CursorClause<Customer>(selector, 2, CursorDirection.After);
+        var predicate = QuerySpecLinqExtensions.BuildCursorPredicate(cursor);
+        var binary = predicate.Body.Should().BeAssignableTo<BinaryExpression>().Subject;
+        binary.NodeType.Should().Be(ExpressionType.GreaterThan);
+        binary.Left.Should().BeAssignableTo<MemberExpression>();
+    }
+
+    [Fact]
+    public void BuildCursorPredicate_DirectionBefore_CreatesLessThanExpression()
+    {
+        Expression<Func<Customer, object?>> selector = c => (object)c.Id;
+        var cursor = new CursorClause<Customer>(selector, 2, CursorDirection.Before);
+        var predicate = QuerySpecLinqExtensions.BuildCursorPredicate(cursor);
+        var binary = predicate.Body.Should().BeAssignableTo<BinaryExpression>().Subject;
+        binary.NodeType.Should().Be(ExpressionType.LessThan);
+        binary.Left.Should().BeAssignableTo<MemberExpression>();
+    }
+
+    [Fact]
+    public void BuildCursorPredicate_WithNullableComparableType_DoesNotThrowAndBuildsPredicate()
+    {
+        var param = Expression.Parameter(typeof(Customer), "c");
+        var prop = Expression.Property(param, nameof(Customer.Id));
+        var convertToNullable = Expression.Convert(prop, typeof(int?));
+        var convertToObject = Expression.Convert(convertToNullable, typeof(object));
+        var lambda = Expression.Lambda<Func<Customer, object?>>(convertToObject, param);
+
+        var cursor = new CursorClause<Customer>(lambda, (int?)2, CursorDirection.After);
+        var predicate = QuerySpecLinqExtensions.BuildCursorPredicate(cursor);
+        predicate.Should().NotBeNull();
+        var binary = predicate.Body.Should().BeAssignableTo<BinaryExpression>().Subject;
+        binary.NodeType.Should().Be(ExpressionType.GreaterThan);
+    }
+
+    [Fact]
+    public void BuildCursorPredicate_WithNonConvertUnary_KeepsUnaryExpression()
+    {
+        var param = Expression.Parameter(typeof(Customer), "c");
+        var negate = Expression.Negate(Expression.Property(param, nameof(Customer.Id)));
+        var convert = Expression.Convert(negate, typeof(object));
+        var lambda = Expression.Lambda<Func<Customer, object?>>(convert, param);
+
+        var cursor = new CursorClause<Customer>(lambda, -2, CursorDirection.After);
+        var predicate = QuerySpecLinqExtensions.BuildCursorPredicate(cursor);
+        var binary = predicate.Body.Should().BeAssignableTo<BinaryExpression>().Subject;
+        binary.Left.Should().BeAssignableTo<UnaryExpression>().Which.NodeType.Should().Be(ExpressionType.Negate);
     }
 
     private sealed class NoMatchCustomerSpecification : EricksonLopez.Specification.Specification<Customer>

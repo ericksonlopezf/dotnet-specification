@@ -13,4 +13,8 @@
     <ProjectReference Include="..\EricksonLopez.Specification.Abstractions\EricksonLopez.Specification.Abstractions.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <InternalsVisibleTo Include="EricksonLopez.Specification.Tests" />
+  </ItemGroup>
+
 </Project>

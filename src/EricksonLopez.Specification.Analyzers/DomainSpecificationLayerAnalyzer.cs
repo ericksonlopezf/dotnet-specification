@@ -56,6 +56,7 @@ public sealed class DomainSpecificationLayerAnalyzer : DiagnosticAnalyzer
         if (!type.InheritsFromSpecification())
             return;
 
+        // Stryker disable once String : Fallback for global namespace where no tokens match
         var namespaceName = type.ContainingNamespace?.ToString() ?? string.Empty;
         // Stryker disable once Equality : Token at start of namespace (index 0) must match
         var matchedToken = InfrastructureNamespaceTokens
@@ -66,6 +67,7 @@ public sealed class DomainSpecificationLayerAnalyzer : DiagnosticAnalyzer
 
         // Stryker disable once Linq : Empty DeclaringSyntaxReferences safe access
         var declaration = type.DeclaringSyntaxReferences.FirstOrDefault()?.GetSyntax(context.CancellationToken);
+        // Stryker disable once NullCoalescing : Defensive fallback when syntax reference is missing
         var location = declaration is ClassDeclarationSyntax classDecl
             ? classDecl.Identifier.GetLocation()
             : declaration?.GetLocation() ?? type.Locations[0];

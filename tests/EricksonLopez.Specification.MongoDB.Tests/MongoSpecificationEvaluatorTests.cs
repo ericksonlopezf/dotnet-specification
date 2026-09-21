@@ -207,7 +207,23 @@ public sealed class MongoSpecificationEvaluatorTests
     }
 
     [Fact]
-    public void ApplySpecification_WithCriteria_CombinesCriteriaWithFilter()
+    public void ApplySpecification_WithNullFilter_SetsFilterDirectly()
+    {
+        var spec = QuerySpec<TestDocument>.Empty.Where(d => d.IsActive);
+        var findFluent = Substitute.For<IFindFluent<TestDocument, TestDocument>>();
+        findFluent.Filter = null;
+
+        var result = findFluent.ApplySpecification(spec);
+
+        result.Should().BeSameAs(findFluent);
+        findFluent.Filter.Should().NotBeNull();
+        var rendered = RenderFilter(findFluent.Filter);
+        rendered.Contains("IsActive").Should().BeTrue();
+        rendered["IsActive"].AsBoolean.Should().BeTrue();
+    }
+
+    [Fact]
+    public void ApplySpecification_WithEmptyFilter_SetsFilterDirectly()
     {
         var spec = QuerySpec<TestDocument>.Empty.Where(d => d.IsActive);
         var findFluent = Substitute.For<IFindFluent<TestDocument, TestDocument>>();
@@ -217,7 +233,64 @@ public sealed class MongoSpecificationEvaluatorTests
 
         result.Should().BeSameAs(findFluent);
         findFluent.Filter.Should().NotBeNull();
-        findFluent.Filter.Should().NotBe(Builders<TestDocument>.Filter.Empty);
+        var rendered = RenderFilter(findFluent.Filter);
+        rendered.Contains("IsActive").Should().BeTrue();
+        rendered["IsActive"].AsBoolean.Should().BeTrue();
+    }
+
+    [Fact]
+    public void ApplySpecification_WithExistingFilter_CombinesFiltersWithAnd()
+    {
+        var spec = QuerySpec<TestDocument>.Empty.Where(d => d.IsActive);
+        var findFluent = Substitute.For<IFindFluent<TestDocument, TestDocument>>();
+        findFluent.Filter = Builders<TestDocument>.Filter.Eq(d => d.Category, "Books");
+
+        var result = findFluent.ApplySpecification(spec);
+
+        result.Should().BeSameAs(findFluent);
+        findFluent.Filter.Should().NotBeNull();
+        var rendered = RenderFilter(findFluent.Filter);
+        rendered.Contains("Category").Should().BeTrue();
+        rendered["Category"].AsString.Should().Be("Books");
+        rendered.Contains("IsActive").Should().BeTrue();
+        rendered["IsActive"].AsBoolean.Should().BeTrue();
+    }
+
+    #endregion
+
+    #region Find Tests
+
+    [Fact]
+    public void Find_WhenCollectionNull_ThrowsArgumentNullException()
+    {
+        var spec = QuerySpec<TestDocument>.Empty;
+        IMongoCollection<TestDocument> collection = null!;
+
+        var act = () => collection.Find(spec);
+        act.Should().ThrowExactly<ArgumentNullException>().Which.ParamName.Should().Be("collection");
+    }
+
+    [Fact]
+    public void Find_WhenSpecificationNull_ThrowsArgumentNullException()
+    {
+        var collection = Substitute.For<IMongoCollection<TestDocument>>();
+
+        var act = () => collection.Find((QuerySpec<TestDocument>)null!);
+        act.Should().ThrowExactly<ArgumentNullException>().Which.ParamName.Should().Be("specification");
+    }
+
+    [Fact]
+    public void Find_ValidSpecification_ReturnsConfiguredFindFluent()
+    {
+        var spec = QuerySpec<TestDocument>.Empty.Where(d => d.IsActive).OrderBy(d => d.Name);
+        var collection = Substitute.For<IMongoCollection<TestDocument>>();
+
+        var result = collection.Find(spec);
+
+        result.Should().NotBeNull();
+        result.Filter.Should().NotBeNull();
+        var rendered = RenderFilter(result.Filter);
+        rendered.ToString().Should().Contain("IsActive");
     }
 
     #endregion

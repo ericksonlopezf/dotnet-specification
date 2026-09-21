@@ -111,6 +111,7 @@ public static class Spec
     {
         ArgumentNullException.ThrowIfNull(specifications);
 
+        // Stryker disable once Block: Fast-path for array delegation is behaviorally identical to IReadOnlyList branch
         if (specifications is Specification<T>[] array)
         {
             return All(array);
@@ -179,6 +180,7 @@ public static class Spec
     {
         ArgumentNullException.ThrowIfNull(specifications);
 
+        // Stryker disable once Block: Fast-path for array delegation is behaviorally identical to IReadOnlyList branch
         if (specifications is Specification<T>[] array)
         {
             return Any(array);

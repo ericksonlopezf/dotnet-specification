@@ -213,7 +213,7 @@ public sealed class ExpressionInterpreterTests
 
         var act = () => ExpressionInterpreter.Evaluate(lambda, new Customer());
         act.Should().Throw<NotSupportedException>()
-            .WithMessage("*Binary operator 'And' is not supported by the interpreted evaluator.*");
+            .WithMessage("Binary operator 'And' is not supported by the interpreted evaluator.");
     }
 
     [Fact]
@@ -497,6 +497,180 @@ public sealed class ExpressionInterpreterTests
         ExpressionInterpreter.Evaluate(trueOrFalse, customer).Should().BeTrue();
         ExpressionInterpreter.Evaluate(falseOrTrue, customer).Should().BeTrue();
         ExpressionInterpreter.Evaluate(falseOrFalse, customer).Should().BeFalse();
+    }
+
+    [Fact]
+    public void Evaluate_WhenDepthAtMaxDepth_DoesNotThrow()
+    {
+        Expression expr = Expression.Constant(1);
+        for (var i = 0; i < 511; i++)
+        {
+            expr = Expression.Convert(expr, typeof(int));
+        }
+
+        var param = Expression.Parameter(typeof(Customer), "c");
+        var eq = Expression.Equal(expr, Expression.Constant(1));
+        var lambda = Expression.Lambda<Func<Customer, bool>>(eq, param);
+
+        ExpressionInterpreter.Evaluate(lambda, new Customer()).Should().BeTrue();
+    }
+
+    [Fact]
+    public void Evaluate_WhenDepthExceedsMaxDepth_ThrowsInvalidOperationException()
+    {
+        Expression expr = Expression.Constant(1);
+        for (var i = 0; i < 515; i++)
+        {
+            expr = Expression.Convert(expr, typeof(int));
+        }
+
+        var param = Expression.Parameter(typeof(Customer), "c");
+        var eq = Expression.Equal(expr, Expression.Constant(1));
+        var lambda = Expression.Lambda<Func<Customer, bool>>(eq, param);
+
+        var act = () => ExpressionInterpreter.Evaluate(lambda, new Customer());
+        act.Should().Throw<InvalidOperationException>()
+            .WithMessage("Expression tree exceeds maximum supported evaluation depth of 512.");
+    }
+
+    [Fact]
+    public void Evaluate_ForbiddenNamespaces_ThrowsInvalidOperationException()
+    {
+        var param = Expression.Parameter(typeof(Customer), "c");
+
+        // System.Diagnostics
+        var diagMethod = typeof(System.Diagnostics.Process).GetMethod(nameof(System.Diagnostics.Process.GetCurrentProcess), Type.EmptyTypes)!;
+        var diagCall = Expression.Call(diagMethod);
+        var diagLambda = Expression.Lambda<Func<Customer, bool>>(Expression.NotEqual(diagCall, Expression.Constant(null, typeof(System.Diagnostics.Process))), param);
+        var actDiag = () => ExpressionInterpreter.Evaluate(diagLambda, new Customer());
+        actDiag.Should().Throw<InvalidOperationException>()
+            .WithMessage("*is not permitted in interpreted specification evaluation for security reasons.");
+
+        // System.IO
+        var ioMethod = typeof(System.IO.Path).GetMethod(nameof(System.IO.Path.GetTempPath), Type.EmptyTypes)!;
+        var ioCall = Expression.Call(ioMethod);
+        var ioLambda = Expression.Lambda<Func<Customer, bool>>(Expression.NotEqual(ioCall, Expression.Constant(null, typeof(string))), param);
+        var actIo = () => ExpressionInterpreter.Evaluate(ioLambda, new Customer());
+        actIo.Should().Throw<InvalidOperationException>()
+            .WithMessage("*is not permitted in interpreted specification evaluation for security reasons.");
+
+        // System.Reflection
+        var reflMethod = typeof(System.Reflection.Assembly).GetMethod(nameof(System.Reflection.Assembly.GetExecutingAssembly), Type.EmptyTypes)!;
+        var reflCall = Expression.Call(reflMethod);
+        var reflLambda = Expression.Lambda<Func<Customer, bool>>(Expression.NotEqual(reflCall, Expression.Constant(null, typeof(System.Reflection.Assembly))), param);
+        var actRefl = () => ExpressionInterpreter.Evaluate(reflLambda, new Customer());
+        actRefl.Should().Throw<InvalidOperationException>()
+            .WithMessage("*is not permitted in interpreted specification evaluation for security reasons.");
+
+        // Environment
+        var envMethod = typeof(Environment).GetMethod(nameof(Environment.GetEnvironmentVariable), new[] { typeof(string) })!;
+        var envCall = Expression.Call(envMethod, Expression.Constant("PATH"));
+        var envLambda = Expression.Lambda<Func<Customer, bool>>(Expression.NotEqual(envCall, Expression.Constant(null, typeof(string))), param);
+        var actEnv = () => ExpressionInterpreter.Evaluate(envLambda, new Customer());
+        actEnv.Should().Throw<InvalidOperationException>()
+            .WithMessage("*is not permitted in interpreted specification evaluation for security reasons.");
+    }
+
+    [Fact]
+    public void Evaluate_ConvertNullableType_FromDifferentNumericType()
+    {
+        var param = Expression.Parameter(typeof(Customer), "c");
+        var convertExpr = Expression.Convert(Expression.Constant(42L), typeof(int?));
+        var eq = Expression.Equal(convertExpr, Expression.Constant((int?)42, typeof(int?)));
+        var lambda = Expression.Lambda<Func<Customer, bool>>(eq, param);
+
+        ExpressionInterpreter.Evaluate(lambda, new Customer()).Should().BeTrue();
+    }
+
+    [Fact]
+    public void Evaluate_CompareValues_DifferentNumericTypes()
+    {
+        Expression<Func<Customer, bool>> exprGte = c => c.CreditLimit >= 100;
+        Expression<Func<Customer, bool>> exprLte = c => c.CreditLimit <= 100;
+        Expression<Func<Customer, bool>> exprGt = c => c.CreditLimit > 100;
+        Expression<Func<Customer, bool>> exprLt = c => c.CreditLimit < 100;
+
+        ExpressionInterpreter.Evaluate(exprGte, new Customer { CreditLimit = 100m }).Should().BeTrue();
+        ExpressionInterpreter.Evaluate(exprLte, new Customer { CreditLimit = 100m }).Should().BeTrue();
+        ExpressionInterpreter.Evaluate(exprGt, new Customer { CreditLimit = 150m }).Should().BeTrue();
+        ExpressionInterpreter.Evaluate(exprLt, new Customer { CreditLimit = 50m }).Should().BeTrue();
+    }
+
+    [Fact]
+    public void Evaluate_CompareValues_WithNullOperand_ReturnsFalse()
+    {
+        // When b.Left is not ConstantExpression and rightVal is null:
+#pragma warning disable CS0464
+        Expression<Func<Customer, bool>> exprRightNullGt = c => ((int?)c.Id) > null;
+        Expression<Func<Customer, bool>> exprRightNullGte = c => ((int?)c.Id) >= null;
+        Expression<Func<Customer, bool>> exprRightNullLt = c => ((int?)c.Id) < null;
+        Expression<Func<Customer, bool>> exprRightNullLte = c => ((int?)c.Id) <= null;
+#pragma warning restore CS0464
+
+        var customer = new Customer { Id = 10 };
+        ExpressionInterpreter.Evaluate(exprRightNullGt, customer).Should().BeFalse();
+        ExpressionInterpreter.Evaluate(exprRightNullGte, customer).Should().BeFalse();
+        ExpressionInterpreter.Evaluate(exprRightNullLt, customer).Should().BeFalse();
+        ExpressionInterpreter.Evaluate(exprRightNullLte, customer).Should().BeFalse();
+
+        // When b.Left is not ConstantExpression and leftVal is null:
+        Expression<Func<Customer, bool>> exprLeftNullGt = c => (c.Id == 10 ? (int?)null : 1) > 5;
+        Expression<Func<Customer, bool>> exprLeftNullGte = c => (c.Id == 10 ? (int?)null : 1) >= 5;
+        Expression<Func<Customer, bool>> exprLeftNullLt = c => (c.Id == 10 ? (int?)null : 1) < 5;
+        Expression<Func<Customer, bool>> exprLeftNullLte = c => (c.Id == 10 ? (int?)null : 1) <= 5;
+
+        ExpressionInterpreter.Evaluate(exprLeftNullGt, customer).Should().BeFalse();
+        ExpressionInterpreter.Evaluate(exprLeftNullGte, customer).Should().BeFalse();
+        ExpressionInterpreter.Evaluate(exprLeftNullLt, customer).Should().BeFalse();
+        ExpressionInterpreter.Evaluate(exprLeftNullLte, customer).Should().BeFalse();
+    }
+
+    [Fact]
+    public void CompareValues_Helper_DirectComparisons()
+    {
+        var method = typeof(ExpressionInterpreter).GetMethod("CompareValues", BindingFlags.NonPublic | BindingFlags.Static)!;
+
+        // Decimal vs int (different types, right is converted to left type)
+        var res1 = (int)method.Invoke(null, new object?[] { 10m, 5 })!;
+        res1.Should().BePositive();
+
+        var res2 = (int)method.Invoke(null, new object?[] { 10m, 10 })!;
+        res2.Should().Be(0);
+
+        var res3 = (int)method.Invoke(null, new object?[] { 10m, 15 })!;
+        res3.Should().BeNegative();
+
+        // Right is null: IComparable.CompareTo(null) returns > 0
+        var resNull = (int)method.Invoke(null, new object?[] { 10, null })!;
+        resNull.Should().BePositive();
+
+        // Right is unconvertible type falls back to direct comparison
+        var actInvalidCast = () => method.Invoke(null, new object?[] { 10, new object() });
+        actInvalidCast.Should().Throw<TargetInvocationException>().WithInnerException<ArgumentException>();
+    }
+
+    [Fact]
+    public void Evaluate_UnsupportedBinaryOperator_Modulo_ThrowsNotSupportedException()
+    {
+        var param = Expression.Parameter(typeof(Customer), "c");
+        var bin = Expression.Modulo(Expression.Constant(10), Expression.Constant(3));
+        var method = typeof(ExpressionInterpreter).GetMethod("EvaluateBinary", BindingFlags.NonPublic | BindingFlags.Static)!;
+        var generic = method.MakeGenericMethod(typeof(Customer));
+
+        var act = () =>
+        {
+            try
+            {
+                generic.Invoke(null, new object[] { bin, param, new Customer(), 0 });
+            }
+            catch (TargetInvocationException ex)
+            {
+                throw ex.InnerException!;
+            }
+        };
+
+        act.Should().Throw<NotSupportedException>()
+            .WithMessage("Binary operator 'Modulo' is not supported by the interpreted evaluator.");
     }
 }
 

@@ -278,6 +278,7 @@ public static class QuerySpecLinqExtensions
     /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="specification"/> is <see langword="null"/></exception>
     public static IEnumerable<T> Where<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties | DynamicallyAccessedMemberTypes.PublicFields)] T>(this IEnumerable<T> source, ISpecification<T> specification)
     {
+        // Stryker disable once Statement : Delegated null validation to Enumerable.Where
         ArgumentNullException.ThrowIfNull(source);
         ArgumentNullException.ThrowIfNull(specification);
         return source.Where(specification.IsSatisfiedBy);
@@ -293,6 +294,7 @@ public static class QuerySpecLinqExtensions
     /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="specification"/> is <see langword="null"/></exception>
     public static bool Any<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties | DynamicallyAccessedMemberTypes.PublicFields)] T>(this IEnumerable<T> source, ISpecification<T> specification)
     {
+        // Stryker disable once Statement : Delegated null validation to Enumerable.Any
         ArgumentNullException.ThrowIfNull(source);
         ArgumentNullException.ThrowIfNull(specification);
         return source.Any(specification.IsSatisfiedBy);
@@ -308,6 +310,7 @@ public static class QuerySpecLinqExtensions
     /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="specification"/> is <see langword="null"/></exception>
     public static bool All<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties | DynamicallyAccessedMemberTypes.PublicFields)] T>(this IEnumerable<T> source, ISpecification<T> specification)
     {
+        // Stryker disable once Statement : Delegated null validation to Enumerable.All
         ArgumentNullException.ThrowIfNull(source);
         ArgumentNullException.ThrowIfNull(specification);
         return source.All(specification.IsSatisfiedBy);
@@ -323,6 +326,7 @@ public static class QuerySpecLinqExtensions
     /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="specification"/> is <see langword="null"/></exception>
     public static int Count<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties | DynamicallyAccessedMemberTypes.PublicFields)] T>(this IEnumerable<T> source, ISpecification<T> specification)
     {
+        // Stryker disable once Statement : Delegated null validation to Enumerable.Count
         ArgumentNullException.ThrowIfNull(source);
         ArgumentNullException.ThrowIfNull(specification);
         return source.Count(specification.IsSatisfiedBy);
@@ -338,6 +342,7 @@ public static class QuerySpecLinqExtensions
     /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="specification"/> is <see langword="null"/></exception>
     public static T? FirstOrDefault<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties | DynamicallyAccessedMemberTypes.PublicFields)] T>(this IEnumerable<T> source, ISpecification<T> specification)
     {
+        // Stryker disable once Statement : Delegated null validation to Enumerable.FirstOrDefault
         ArgumentNullException.ThrowIfNull(source);
         ArgumentNullException.ThrowIfNull(specification);
         return source.FirstOrDefault(specification.IsSatisfiedBy);

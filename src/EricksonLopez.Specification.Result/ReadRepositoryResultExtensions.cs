@@ -33,6 +33,7 @@ public static class ReadRepositoryResultExtensions
 
         try
         {
+            // Stryker disable once Boolean : Library best practice ConfigureAwait(false) prevents synchronization context capture
             var result = await repository.FirstOrDefaultAsync(specification, cancellationToken).ConfigureAwait(false);
             return result is null
                 ? EricksonLopez.Result.Result.Failure<T>(Error.NotFound($"{typeof(T).Name}.NotFound", $"No {typeof(T).Name} found matching the specification."))
@@ -66,6 +67,7 @@ public static class ReadRepositoryResultExtensions
 
         try
         {
+            // Stryker disable once Boolean : Library best practice ConfigureAwait(false) prevents synchronization context capture
             var result = await repository.ListAsync(specification, cancellationToken).ConfigureAwait(false);
             return EricksonLopez.Result.Result.Success(result);
         }
@@ -98,6 +100,7 @@ public static class ReadRepositoryResultExtensions
 
         try
         {
+            // Stryker disable once Boolean : Library best practice ConfigureAwait(false) prevents synchronization context capture
             var result = await repository.SingleOrDefaultAsync(specification, cancellationToken).ConfigureAwait(false);
             return result is null
                 ? EricksonLopez.Result.Result.Failure<T>(Error.NotFound($"{typeof(T).Name}.NotFound", $"No {typeof(T).Name} found matching the specification."))
@@ -137,6 +140,7 @@ public static class ReadRepositoryResultExtensions
 
         try
         {
+            // Stryker disable once Boolean : Library best practice ConfigureAwait(false) prevents synchronization context capture
             var result = await repository.GetByIdAsync(id, cancellationToken).ConfigureAwait(false);
             return result is null
                 ? EricksonLopez.Result.Result.Failure<T>(Error.NotFound($"{typeof(T).Name}.NotFound", $"No {typeof(T).Name} found with ID {id}."))

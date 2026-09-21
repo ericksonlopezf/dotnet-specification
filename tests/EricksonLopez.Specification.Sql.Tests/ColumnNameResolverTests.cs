@@ -42,6 +42,16 @@ public sealed class ColumnNameResolverTests
         var name = VerbatimColumnNameResolver.Default.Resolve(input);
         name.Should().Be(input);
     }
+
+    [Fact]
+    public void Verbatim_Resolve_NullOrWhiteSpace_Throws()
+    {
+        var act1 = () => VerbatimColumnNameResolver.Default.Resolve(null!);
+        act1.Should().Throw<ArgumentException>();
+
+        var act2 = () => VerbatimColumnNameResolver.Default.Resolve(" ");
+        act2.Should().Throw<ArgumentException>();
+    }
 }
 
 
