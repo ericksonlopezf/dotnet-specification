@@ -44,17 +44,20 @@ dotnet_diagnostic.CS1573.severity = warning
 # Testing Rules
 dotnet_diagnostic.xUnit1051.severity = warning
 
+# Compiler Jump / Label Errors (Zero Tolerance)
+dotnet_diagnostic.CS0159.severity = error
+dotnet_diagnostic.CS159.severity = error
+
 # ─────────────────────────────────────────────────────────────────────────────
 # Test & Benchmark Projects: Living Executable Specifications
 # As established in ADR-026, test methods follow the Osherove naming pattern:
 # [Method/UnitOfWork]_[Scenario/StateUnderTest]_[ExpectedBehavior]
-# CA1707, IDE1006, and CS1591 are locally disabled for test clarity in CI/CD reports.
+# CA1707 and IDE1006 are locally adjusted for test clarity in CI/CD reports.
 # ─────────────────────────────────────────────────────────────────────────────
 [{tests,benchmarks}/**/*.cs]
 dotnet_diagnostic.IDE1006.severity = none
 dotnet_diagnostic.CA1707.severity = none
 dotnet_diagnostic.CA1515.severity = none
-dotnet_diagnostic.CS1591.severity = none
 dotnet_diagnostic.CS0618.severity = error
 dotnet_diagnostic.CS0619.severity = error
 
@@ -62,7 +65,6 @@ dotnet_diagnostic.CS0619.severity = error
 dotnet_diagnostic.IDE1006.severity = none
 dotnet_diagnostic.CA1707.severity = none
 dotnet_diagnostic.CA1515.severity = none
-dotnet_diagnostic.CS1591.severity = none
 dotnet_diagnostic.CS0618.severity = error
 dotnet_diagnostic.CS0619.severity = error
 

@@ -33,24 +33,36 @@ public static class ExpressionHasher
 
     private sealed class HashVisitor : ExpressionVisitor
     {
+        private const int MaxDepth = 512;
+        private int _depth;
         private HashCode _hash;
 
         internal int Hash => _hash.ToHashCode();
 
         public override Expression? Visit(Expression? node)
         {
-            if (node is null)
+            if (++_depth > MaxDepth)
+                throw new InvalidOperationException($"Expression tree exceeds maximum supported hashing depth of {MaxDepth}.");
+
+            try
             {
-                // Stryker disable once Statement : Hash collision for missing nodes is astronomically unlikely
-                _hash.Add(0);
-                return null;
+                if (node is null)
+                {
+                    // Stryker disable once Statement : Hash collision for missing nodes is astronomically unlikely
+                    _hash.Add(0);
+                    return null;
+                }
+
+                _hash.Add((int)node.NodeType);
+                // Stryker disable once Statement : Node types usually disambiguate anyway
+                _hash.Add(node.Type.GetHashCode());
+
+                return base.Visit(node);
             }
-
-            _hash.Add((int)node.NodeType);
-            // Stryker disable once Statement : Node types usually disambiguate anyway
-            _hash.Add(node.Type.GetHashCode());
-
-            return base.Visit(node);
+            finally
+            {
+                _depth--;
+            }
         }
 
         protected override Expression VisitConstant(ConstantExpression node)
@@ -62,7 +74,21 @@ public static class ExpressionHasher
         protected override Expression VisitMember(MemberExpression node)
         {
             _hash.Add(node.Member.GetHashCode());
+            if (node.Expression is null)
+            {
+                var val = GetStaticMemberValue(node.Member);
+                _hash.Add(val?.GetHashCode() ?? 0);
+            }
             return base.VisitMember(node);
+        }
+
+        private static object? GetStaticMemberValue(System.Reflection.MemberInfo member)
+        {
+            if (member is System.Reflection.PropertyInfo pi && (pi.GetMethod?.IsStatic ?? false))
+                return pi.GetValue(null);
+            if (member is System.Reflection.FieldInfo fi && fi.IsStatic)
+                return fi.GetValue(null);
+            return null;
         }
 
         protected override Expression VisitMethodCall(MethodCallExpression node)

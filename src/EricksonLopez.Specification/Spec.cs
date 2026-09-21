@@ -1,5 +1,6 @@
 // Copyright © Erickson Lopez. MIT License.
 using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
@@ -91,6 +92,48 @@ public static class Spec
     }
 
     /// <summary>
+    /// Composes a sequence of specifications using logical AND.
+    /// </summary>
+    /// <typeparam name="T">The entity type.</typeparam>
+    /// <param name="specifications">The specifications sequence to compose with AND.</param>
+    /// <returns>A specification that is satisfied only when all of <paramref name="specifications"/> are satisfied.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="specifications"/> is <see langword="null"/></exception>
+    /// <example>
+    /// <code>
+    /// var specs = new List&lt;Specification&lt;Product&gt;&gt; { new ActiveSpec(), new InStockSpec() };
+    /// var composite = Spec.All(specs);
+    /// </code>
+    /// </example>
+    public static Specification<T> All<
+        [DynamicallyAccessedMembers(
+            DynamicallyAccessedMemberTypes.PublicProperties |
+            DynamicallyAccessedMemberTypes.PublicFields)] T>(IEnumerable<Specification<T>> specifications)
+    {
+        ArgumentNullException.ThrowIfNull(specifications);
+
+        // Stryker disable once Block: Fast-path for array delegation is behaviorally identical to IReadOnlyList branch
+        if (specifications is Specification<T>[] array)
+        {
+            return All(array);
+        }
+
+        if (specifications is IReadOnlyList<Specification<T>> list)
+        {
+            if (list.Count == 0) return True<T>();
+            if (list.Count == 1) return list[0];
+
+            var expressions = new Expression<Func<T, bool>>[list.Count];
+            for (var i = 0; i < list.Count; i++)
+            {
+                expressions[i] = list[i].ToExpression();
+            }
+            return new LambdaSpecification<T>(ExpressionComposer.AndAll<T>(expressions.AsSpan()));
+        }
+
+        return All(specifications.ToArray());
+    }
+
+    /// <summary>
     /// Composes all specifications using logical OR.
     /// </summary>
     /// <typeparam name="T">The entity type.</typeparam>
@@ -118,6 +161,48 @@ public static class Spec
     }
 
     /// <summary>
+    /// Composes a sequence of specifications using logical OR.
+    /// </summary>
+    /// <typeparam name="T">The entity type.</typeparam>
+    /// <param name="specifications">The specifications sequence to compose with OR.</param>
+    /// <returns>A specification that is satisfied when any of <paramref name="specifications"/> is satisfied.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="specifications"/> is <see langword="null"/></exception>
+    /// <example>
+    /// <code>
+    /// var specs = new List&lt;Specification&lt;Product&gt;&gt; { new PremiumSpec(), new VipSpec() };
+    /// var composite = Spec.Any(specs);
+    /// </code>
+    /// </example>
+    public static Specification<T> Any<
+        [DynamicallyAccessedMembers(
+            DynamicallyAccessedMemberTypes.PublicProperties |
+            DynamicallyAccessedMemberTypes.PublicFields)] T>(IEnumerable<Specification<T>> specifications)
+    {
+        ArgumentNullException.ThrowIfNull(specifications);
+
+        // Stryker disable once Block: Fast-path for array delegation is behaviorally identical to IReadOnlyList branch
+        if (specifications is Specification<T>[] array)
+        {
+            return Any(array);
+        }
+
+        if (specifications is IReadOnlyList<Specification<T>> list)
+        {
+            if (list.Count == 0) return False<T>();
+            if (list.Count == 1) return list[0];
+
+            var expressions = new Expression<Func<T, bool>>[list.Count];
+            for (var i = 0; i < list.Count; i++)
+            {
+                expressions[i] = list[i].ToExpression();
+            }
+            return new LambdaSpecification<T>(ExpressionComposer.OrAny<T>(expressions.AsSpan()));
+        }
+
+        return Any(specifications.ToArray());
+    }
+
+    /// <summary>
     /// Creates a specification that determines whether a property value is inclusively between the lower and upper bounds.
     /// </summary>
     /// <typeparam name="T">The entity type.</typeparam>
@@ -127,6 +212,7 @@ public static class Spec
     /// <param name="upper">The inclusive upper bound.</param>
     /// <returns>A specification checking the range.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="propertySelector"/> is <see langword="null"/></exception>
+    /// <exception cref="ArgumentException"><paramref name="lower"/> is greater than <paramref name="upper"/></exception>
     public static Specification<T> Between<
         [DynamicallyAccessedMembers(
             DynamicallyAccessedMemberTypes.PublicProperties |
@@ -137,6 +223,8 @@ public static class Spec
         where TProperty : IComparable<TProperty>
     {
         ArgumentNullException.ThrowIfNull(propertySelector);
+        if (lower.CompareTo(upper) > 0)
+            throw new ArgumentException($"Lower bound '{lower}' cannot be greater than upper bound '{upper}'.", nameof(lower));
 
         var param = propertySelector.Parameters[0];
         var propExpr = propertySelector.Body;
@@ -147,6 +235,48 @@ public static class Spec
         var gte = Expression.GreaterThanOrEqual(propExpr, lowerConstant);
         var lte = Expression.LessThanOrEqual(propExpr, upperConstant);
         var and = Expression.AndAlso(gte, lte);
+
+        var lambda = Expression.Lambda<Func<T, bool>>(and, param);
+        return new LambdaSpecification<T>(lambda);
+    }
+
+    /// <summary>
+    /// Creates a specification that determines whether a nullable property value is inclusively between the lower and upper bounds.
+    /// </summary>
+    /// <typeparam name="T">The entity type.</typeparam>
+    /// <typeparam name="TProperty">The underlying property type.</typeparam>
+    /// <param name="propertySelector">The property selector expression returning a nullable value.</param>
+    /// <param name="lower">The inclusive lower bound.</param>
+    /// <param name="upper">The inclusive upper bound.</param>
+    /// <returns>A specification checking the range.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="propertySelector"/> is <see langword="null"/></exception>
+    /// <exception cref="ArgumentException"><paramref name="lower"/> is greater than <paramref name="upper"/></exception>
+    public static Specification<T> Between<
+        [DynamicallyAccessedMembers(
+            DynamicallyAccessedMemberTypes.PublicProperties |
+            DynamicallyAccessedMemberTypes.PublicFields)] T, TProperty>(
+        Expression<Func<T, TProperty?>> propertySelector,
+        TProperty lower,
+        TProperty upper)
+        where TProperty : struct, IComparable<TProperty>
+    {
+        ArgumentNullException.ThrowIfNull(propertySelector);
+        if (lower.CompareTo(upper) > 0)
+            throw new ArgumentException($"Lower bound '{lower}' cannot be greater than upper bound '{upper}'.", nameof(lower));
+
+        var param = propertySelector.Parameters[0];
+        var propExpr = propertySelector.Body;
+
+        var nullConstant = Expression.Constant(null, typeof(TProperty?));
+        var notNull = Expression.NotEqual(propExpr, nullConstant);
+
+        var lowerConstant = Expression.Constant((TProperty?)lower, typeof(TProperty?));
+        var upperConstant = Expression.Constant((TProperty?)upper, typeof(TProperty?));
+
+        var gte = Expression.GreaterThanOrEqual(propExpr, lowerConstant);
+        var lte = Expression.LessThanOrEqual(propExpr, upperConstant);
+        var inRange = Expression.AndAlso(gte, lte);
+        var and = Expression.AndAlso(notNull, inRange);
 
         var lambda = Expression.Lambda<Func<T, bool>>(and, param);
         return new LambdaSpecification<T>(lambda);

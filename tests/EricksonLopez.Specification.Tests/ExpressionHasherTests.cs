@@ -214,6 +214,162 @@ public sealed class ExpressionHasherTests
 
         hash1.Should().NotBe(hash2, "expressions with different parameter types must produce different hashes");
     }
+
+    public static int StaticProp1 => 42;
+    public static int StaticProp2 => 99;
+    public static string? StaticNullProp => null;
+    public static int StaticField1 = 42;
+    public static int StaticField2 = 99;
+    public static string? StaticNullField = null;
+
+    [Fact]
+    public void ComputeHash_StaticProperty_DifferentValues_ProducesDifferentHash()
+    {
+        Expression<Func<int>> expr1 = () => StaticProp1;
+        Expression<Func<int>> expr2 = () => StaticProp2;
+
+        var hash1 = ExpressionHasher.ComputeHash(expr1);
+        var hash2 = ExpressionHasher.ComputeHash(expr2);
+
+        hash1.Should().NotBe(hash2);
+    }
+
+    [Fact]
+    public void ComputeHash_StaticProperty_NullValue_ComputesHash()
+    {
+        Expression<Func<string?>> expr = () => StaticNullProp;
+        var hash = ExpressionHasher.ComputeHash(expr);
+        hash.Should().NotBe(0);
+    }
+
+    [Fact]
+    public void ComputeHash_StaticField_DifferentValues_ProducesDifferentHash()
+    {
+        Expression<Func<int>> field1 = () => StaticField1;
+        Expression<Func<int>> field2 = () => StaticField2;
+
+        var hash1 = ExpressionHasher.ComputeHash(field1);
+        var hash2 = ExpressionHasher.ComputeHash(field2);
+
+        hash1.Should().NotBe(hash2);
+    }
+
+    public static int MutableStaticField = 10;
+    public static int MutableStaticProp { get; set; } = 100;
+    public static string? MutableStaticNullProp { get; set; } = null;
+
+    [Fact]
+    public void ComputeHash_StaticField_SameMemberDifferentValue_ProducesDifferentHash()
+    {
+        Expression<Func<int>> expr = () => MutableStaticField;
+
+        MutableStaticField = 10;
+        var hash1 = ExpressionHasher.ComputeHash(expr);
+
+        MutableStaticField = 20;
+        var hash2 = ExpressionHasher.ComputeHash(expr);
+
+        hash1.Should().NotBe(hash2);
+    }
+
+    [Fact]
+    public void ComputeHash_StaticProperty_SameMemberDifferentValue_ProducesDifferentHash()
+    {
+        Expression<Func<int>> expr = () => MutableStaticProp;
+
+        MutableStaticProp = 100;
+        var hash1 = ExpressionHasher.ComputeHash(expr);
+
+        MutableStaticProp = 200;
+        var hash2 = ExpressionHasher.ComputeHash(expr);
+
+        hash1.Should().NotBe(hash2);
+    }
+
+    [Fact]
+    public void ComputeHash_StaticProperty_NullVsNonNull_ProducesDifferentHash()
+    {
+        Expression<Func<string?>> expr = () => MutableStaticNullProp;
+
+        MutableStaticNullProp = null;
+        var hash1 = ExpressionHasher.ComputeHash(expr);
+
+        MutableStaticNullProp = "non-null";
+        var hash2 = ExpressionHasher.ComputeHash(expr);
+
+        hash1.Should().NotBe(hash2);
+    }
+
+    [Fact]
+    public void ComputeHash_StaticField_NullValue_ComputesHash()
+    {
+        Expression<Func<string?>> field = () => StaticNullField;
+        var hash = ExpressionHasher.ComputeHash(field);
+        hash.Should().NotBe(0);
+    }
+
+    [Fact]
+    public void ComputeHash_WhenDepthAtMaxDepth_DoesNotThrow()
+    {
+        Expression expr = Expression.Constant(1);
+        for (var i = 0; i < 511; i++)
+        {
+            expr = Expression.Negate(expr);
+        }
+
+        var hash = ExpressionHasher.ComputeHash(expr);
+        hash.Should().NotBe(0);
+    }
+
+    [Fact]
+    public void ComputeHash_WhenDepthExceedsMaxDepth_ThrowsInvalidOperationException()
+    {
+        Expression expr = Expression.Constant(1);
+        for (var i = 0; i < 515; i++)
+        {
+            expr = Expression.Negate(expr);
+        }
+
+        var act = () => ExpressionHasher.ComputeHash(expr);
+        act.Should().Throw<InvalidOperationException>()
+            .WithMessage("Expression tree exceeds maximum supported hashing depth of 512.");
+    }
+
+    [Fact]
+    public void ComputeHash_WideTreeWithManySiblings_DecrementsDepthProperly()
+    {
+        // 600 constants inside a NewArrayInit expression:
+        // Root is depth 1, each element is depth 2.
+        // If _depth-- in finally block were mutated to ';' or '_depth++',
+        // depth would accumulate across siblings and exceed 512, throwing InvalidOperationException.
+        var elements = Enumerable.Range(0, 600).Select(i => (Expression)Expression.Constant(i)).ToArray();
+        var arr = Expression.NewArrayInit(typeof(int), elements);
+
+        var hash = ExpressionHasher.ComputeHash(arr);
+        hash.Should().NotBe(0);
+    }
+
+    [Fact]
+    public void GetStaticMemberValue_InstancePropertyAndNullGetter_ReturnsNull()
+    {
+        var visitorType = typeof(ExpressionHasher).GetNestedType("HashVisitor", BindingFlags.NonPublic)!;
+        var method = visitorType.GetMethod("GetStaticMemberValue", BindingFlags.NonPublic | BindingFlags.Static)!;
+
+        // Instance property should return null
+        var instanceProp = typeof(Customer).GetProperty(nameof(Customer.Name))!;
+        var resultInstance = method.Invoke(null, new object[] { instanceProp });
+        resultInstance.Should().BeNull();
+
+        // Write-only property with null GetMethod should return null
+        var writeOnlyProp = typeof(ExpressionEqualityComparerTests_CustomType).GetProperty(nameof(ExpressionEqualityComparerTests_CustomType.WriteOnlyValue))!;
+        var resultWriteOnly = method.Invoke(null, new object[] { writeOnlyProp });
+        resultWriteOnly.Should().BeNull();
+
+        // Non-property, non-field member should return null
+        var dummyMethod = typeof(ExpressionHasherTests).GetMethod(nameof(DummyUnaryMethod))!;
+        var resultMethod = method.Invoke(null, new object[] { dummyMethod });
+        resultMethod.Should().BeNull();
+    }
 }
 
 

@@ -357,6 +357,76 @@ public sealed class QueryPlanCacheTests : IDisposable
         QueryPlanCache.TryGetPlan(expr3, "t", out _).Should().BeTrue();
         QueryPlanCache.TryGetPlan(expr4, "t", out _).Should().BeTrue();
     }
+
+    [Fact]
+    public void Translate_ZeroParameters_CacheHit_ReturnsCachedPlan()
+    {
+        QueryPlanCache.Clear();
+        var translator = new QuerySpecTranslator<CacheTestCustomer>("Customers");
+        var spec = QuerySpec<CacheTestCustomer>.Empty.Where(c => c.Name == null);
+
+        var plan1 = translator.Translate(spec);
+        plan1.Parameters.Should().BeEmpty();
+
+        var plan2 = translator.Translate(spec);
+        plan2.Should().BeSameAs(plan1);
+    }
+
+    [Fact]
+    public void Translate_SameParameters_CacheHit_ReturnsCachedPlan()
+    {
+        QueryPlanCache.Clear();
+        var translator = new QuerySpecTranslator<CacheTestCustomer>("Customers");
+        var id = 42;
+        var spec1 = QuerySpec<CacheTestCustomer>.Empty.Where(c => c.Id == id);
+
+        var plan1 = translator.Translate(spec1);
+        plan1.Parameters.Should().HaveCount(1);
+        plan1.Parameters[0].Value.Should().Be(42);
+
+        var spec2 = QuerySpec<CacheTestCustomer>.Empty.Where(c => c.Id == id);
+        var plan2 = translator.Translate(spec2);
+        plan2.Should().BeSameAs(plan1);
+    }
+
+    [Fact]
+    public void Translate_DifferentParameterValue_CacheHit_ReparameterizesPlan()
+    {
+        QueryPlanCache.Clear();
+        var translator = new QuerySpecTranslator<CacheTestCustomer>("Customers");
+        var id1 = 42;
+        var spec1 = QuerySpec<CacheTestCustomer>.Empty.Where(c => c.Id == id1);
+
+        var plan1 = translator.Translate(spec1);
+        plan1.Parameters[0].Value.Should().Be(42);
+
+        var id2 = 99;
+        var spec2 = QuerySpec<CacheTestCustomer>.Empty.Where(c => c.Id == id2);
+        var plan2 = translator.Translate(spec2);
+
+        plan2.Parameters[0].Value.Should().Be(99);
+        plan2.Should().NotBeSameAs(plan1);
+    }
+
+    [Fact]
+    public void Translate_DifferentParameterName_CacheHit_ReparameterizesPlan()
+    {
+        QueryPlanCache.Clear();
+        var translator = new QuerySpecTranslator<CacheTestCustomer>("Customers");
+        var id1 = 42;
+        var spec1 = QuerySpec<CacheTestCustomer>.Empty.Where(c => c.Id == id1);
+
+        var plan1 = translator.Translate(spec1);
+
+        var cacheKey = spec1.Criteria[0];
+        QueryPlanCache.TryGetPlan(cacheKey, "Customers", out var cached);
+        var corrupted = cached! with { Parameters = [new SqlParameter("corrupted", 42)] };
+        QueryPlanCache.SetPlan(cacheKey, "Customers", corrupted);
+
+        var plan2 = translator.Translate(spec1);
+        plan2.Parameters[0].Name.Should().Be("p1");
+        plan2.Parameters[0].Value.Should().Be(42);
+    }
 }
 
 

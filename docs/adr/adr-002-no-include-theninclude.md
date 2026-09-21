@@ -1,5 +1,11 @@
 # adr-002: No Include / ThenInclude in Specifications
 
+## Status
+Accepted
+
+## Date
+2026-08-12
+
 **Status**: Accepted  
 **Date**: 2026-08-12  
 **Deciders**: EricksonLopez.Specification architecture audit  

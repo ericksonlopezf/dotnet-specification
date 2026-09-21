@@ -56,9 +56,9 @@ public sealed class Level8_Customization : ILevel
         var explicit_ = new ExplicitMappingColumnNameResolver(
             new Dictionary<string, string>
             {
-                { "IsActive",       "ACTIVO"        },
-                { "TotalPurchases", "TOT_COMPRAS"   },
-                { "Name",           "NOMBRE"        }
+                { "IsActive",       "ACTIVE"           },
+                { "TotalPurchases", "TOTAL_PURCHASES"  },
+                { "Name",           "CUSTOMER_NAME"    }
             });
 
         string[] props = ["IsActive", "TotalPurchases", "Name", "CreditLimit"];

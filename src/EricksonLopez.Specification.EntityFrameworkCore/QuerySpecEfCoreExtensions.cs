@@ -20,6 +20,7 @@ public static class QuerySpecEfCoreExtensions
     /// <param name="asSplitQuery">If <see langword="true"/>, configures the query to use multiple SQL queries (<c>AsSplitQuery</c>).</param>
     /// <param name="ignoreAutoIncludes">If <see langword="true"/>, configures the query to ignore auto-included navigations (<c>IgnoreAutoIncludes</c>).</param>
     /// <returns>The configured queryable.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="specification"/> is <see langword="null"/></exception>
     public static IQueryable<T> Apply<T>(
         this IQueryable<T> source,
         QuerySpec<T> specification,
@@ -54,6 +55,7 @@ public static class QuerySpecEfCoreExtensions
     /// <param name="asSplitQuery">If <see langword="true"/>, configures the query to use multiple SQL queries (<c>AsSplitQuery</c>).</param>
     /// <param name="ignoreAutoIncludes">If <see langword="true"/>, configures the query to ignore auto-included navigations (<c>IgnoreAutoIncludes</c>).</param>
     /// <returns>The configured queryable.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="specification"/> is <see langword="null"/></exception>
     public static IQueryable<TResult> Apply<T, TResult>(
         this IQueryable<T> source,
         QuerySpec<T, TResult> specification,

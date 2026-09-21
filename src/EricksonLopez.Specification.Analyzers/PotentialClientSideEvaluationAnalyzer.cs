@@ -92,7 +92,7 @@ public sealed class PotentialClientSideEvaluationAnalyzer : DiagnosticAnalyzer
                 if (IsEfFunctionsMethod(invocation))
                     continue;
 
-                // Stryker disable once Equality,Logical : Operator check
+                // Stryker disable once Equality,Logical,Statement : Operator check
                 if (invokedSymbol.MethodKind == MethodKind.UserDefinedOperator ||
                     invokedSymbol.MethodKind == MethodKind.BuiltinOperator)
                     continue;

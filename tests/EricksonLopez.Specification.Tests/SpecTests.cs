@@ -1,5 +1,6 @@
 // Copyright © Erickson Lopez. MIT License.
 using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using AwesomeAssertions;
 using Xunit;
@@ -59,6 +60,48 @@ public sealed class SpecTests
     {
         var act = () => Spec.Between<Customer, int>(null!, 1, 10);
         act.Should().Throw<ArgumentNullException>();
+    }
+
+    [Fact]
+    public void Between_WhenLowerEqualsUpper_CreatesValidSingleValueRangeSpecification()
+    {
+        var spec = Spec.Between<Customer, decimal>(c => c.CreditLimit, 500m, 500m);
+        spec.IsSatisfiedBy(new Customer { CreditLimit = 500m }).Should().BeTrue();
+        spec.IsSatisfiedBy(new Customer { CreditLimit = 499.99m }).Should().BeFalse();
+        spec.IsSatisfiedBy(new Customer { CreditLimit = 500.01m }).Should().BeFalse();
+    }
+
+    [Fact]
+    public void Between_WhenLowerGreaterThanUpper_ThrowsArgumentException()
+    {
+        var act = () => Spec.Between<Customer, decimal>(c => c.CreditLimit, 500m, 100m);
+        act.Should().Throw<ArgumentException>()
+            .WithParameterName("lower")
+            .WithMessage("Lower bound '500' cannot be greater than upper bound '100'.*");
+    }
+
+    [Fact]
+    public void Between_Nullable_WhenLowerEqualsUpper_CreatesValidSingleValueRangeSpecification()
+    {
+        var spec = Spec.Between<Customer, decimal>(c => (decimal?)c.CreditLimit, 500m, 500m);
+        spec.IsSatisfiedBy(new Customer { CreditLimit = 500m }).Should().BeTrue();
+        spec.IsSatisfiedBy(new Customer { CreditLimit = 499.99m }).Should().BeFalse();
+    }
+
+    [Fact]
+    public void Between_Nullable_WhenLowerGreaterThanUpper_ThrowsArgumentException()
+    {
+        var act = () => Spec.Between<Customer, decimal>(c => (decimal?)c.CreditLimit, 500m, 100m);
+        act.Should().Throw<ArgumentException>()
+            .WithParameterName("lower")
+            .WithMessage("Lower bound '500' cannot be greater than upper bound '100'.*");
+    }
+
+    [Fact]
+    public void Between_Nullable_WithNullSelector_ThrowsArgumentNullException()
+    {
+        var act = () => Spec.Between<Customer, int>((Expression<Func<Customer, int?>>)null!, 1, 10);
+        act.Should().Throw<ArgumentNullException>().Which.ParamName.Should().Be("propertySelector");
     }
 
     [Fact]
@@ -201,6 +244,15 @@ public sealed class SpecTests
     }
 
     [Fact]
+    public void All_WithArrayPassedAsEnumerable_ReturnsComposite()
+    {
+        IEnumerable<Specification<Customer>> array = new[] { Spec.For<Customer>(c => c.IsActive) };
+        var spec = Spec.All(array);
+        spec.IsSatisfiedBy(new Customer { IsActive = true }).Should().BeTrue();
+        spec.IsSatisfiedBy(new Customer { IsActive = false }).Should().BeFalse();
+    }
+
+    [Fact]
     public void All_WithEmptySpecifications_ReturnsAlwaysTrueSpecification()
     {
         var spec = Spec.All<Customer>();
@@ -250,6 +302,15 @@ public sealed class SpecTests
     {
         var act = () => Spec.Any<Customer>(null!);
         act.Should().Throw<ArgumentNullException>();
+    }
+
+    [Fact]
+    public void Any_WithArrayPassedAsEnumerable_ReturnsComposite()
+    {
+        IEnumerable<Specification<Customer>> array = new[] { Spec.For<Customer>(c => c.IsActive) };
+        var spec = Spec.Any(array);
+        spec.IsSatisfiedBy(new Customer { IsActive = true }).Should().BeTrue();
+        spec.IsSatisfiedBy(new Customer { IsActive = false }).Should().BeFalse();
     }
 
     [Fact]
@@ -319,6 +380,86 @@ public sealed class SpecTests
 
         composed.IsSatisfiedBy(new Customer { IsActive = true }).Should().BeTrue();
         composed.IsSatisfiedBy(new Customer { IsActive = false }).Should().BeFalse();
+    }
+
+    // ──────────────────────────────────────────────────────────────────────────
+    // IEnumerable<Specification<T>> Overloads
+    // ──────────────────────────────────────────────────────────────────────────
+
+    [Fact]
+    public void All_WithNullEnumerable_ThrowsArgumentNullException()
+    {
+        IEnumerable<Specification<Customer>> specs = null!;
+        var act = () => Spec.All(specs);
+        act.Should().Throw<ArgumentNullException>().Which.ParamName.Should().Be("specifications");
+    }
+
+    [Fact]
+    public void All_WithEmptyList_ReturnsAlwaysTrueSpecification()
+    {
+        var list = new System.Collections.Generic.List<Specification<Customer>>();
+        var spec = Spec.All(list);
+        spec.IsSatisfiedBy(new Customer()).Should().BeTrue();
+    }
+
+    [Fact]
+    public void All_WithSingleItemList_ReturnsOriginalSpecification()
+    {
+        var single = Spec.For<Customer>(c => c.IsActive);
+        var list = new System.Collections.Generic.List<Specification<Customer>> { single };
+        var spec = Spec.All(list);
+        spec.Should().BeSameAs(single);
+    }
+
+    [Fact]
+    public void All_WithMultipleItemList_ComposesWithAnd()
+    {
+        var spec1 = Spec.For<Customer>(c => c.IsActive);
+        var spec2 = Spec.For<Customer>(c => c.CreditLimit > 100m);
+        var list = new System.Collections.Generic.List<Specification<Customer>> { spec1, spec2 };
+
+        var composed = Spec.All(list);
+        composed.IsSatisfiedBy(new Customer { IsActive = true, CreditLimit = 200m }).Should().BeTrue();
+        composed.IsSatisfiedBy(new Customer { IsActive = true, CreditLimit = 50m }).Should().BeFalse();
+        composed.IsSatisfiedBy(new Customer { IsActive = false, CreditLimit = 200m }).Should().BeFalse();
+    }
+
+    [Fact]
+    public void Any_WithNullEnumerable_ThrowsArgumentNullException()
+    {
+        IEnumerable<Specification<Customer>> specs = null!;
+        var act = () => Spec.Any(specs);
+        act.Should().Throw<ArgumentNullException>().Which.ParamName.Should().Be("specifications");
+    }
+
+    [Fact]
+    public void Any_WithEmptyList_ReturnsAlwaysFalseSpecification()
+    {
+        var list = new System.Collections.Generic.List<Specification<Customer>>();
+        var spec = Spec.Any(list);
+        spec.IsSatisfiedBy(new Customer()).Should().BeFalse();
+    }
+
+    [Fact]
+    public void Any_WithSingleItemList_ReturnsOriginalSpecification()
+    {
+        var single = Spec.For<Customer>(c => c.IsActive);
+        var list = new System.Collections.Generic.List<Specification<Customer>> { single };
+        var spec = Spec.Any(list);
+        spec.Should().BeSameAs(single);
+    }
+
+    [Fact]
+    public void Any_WithMultipleItemList_ComposesWithOr()
+    {
+        var spec1 = Spec.For<Customer>(c => c.IsActive);
+        var spec2 = Spec.For<Customer>(c => c.CreditLimit > 1000m);
+        var list = new System.Collections.Generic.List<Specification<Customer>> { spec1, spec2 };
+
+        var composed = Spec.Any(list);
+        composed.IsSatisfiedBy(new Customer { IsActive = true, CreditLimit = 50m }).Should().BeTrue();
+        composed.IsSatisfiedBy(new Customer { IsActive = false, CreditLimit = 2000m }).Should().BeTrue();
+        composed.IsSatisfiedBy(new Customer { IsActive = false, CreditLimit = 50m }).Should().BeFalse();
     }
 }
 

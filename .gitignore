@@ -1,22 +1,42 @@
-# .NET Build Outputs
-bin/
-obj/
+# =============================================================================
+# .NET Build & MSBuild Artifacts
+# =============================================================================
+[Bb]in/
+[Oo]bj/
 artifacts/
 nupkgs/
 *.nupkg
 *.snupkg
+*.binlog
+*.log
+*.props.user
+*.targets.user
+.cache/
+*.cache
 
-# BenchmarkDotNet
-BenchmarkDotNet.Artifacts/
+# =============================================================================
+# BenchmarkDotNet & Performance Testing
+# =============================================================================
 BenchmarkDotNet.Artifacts*/
 BenchmarkDotNet.Bin/
+benchmarks/pr-results/
+# Whitelist baseline metrics required for regression gates
+!benchmarks/results/
 
-# Visual Studio / Rider / JetBrains
+# =============================================================================
+# IDEs, Editors & Tools
+# =============================================================================
+# Visual Studio
 .vs/
 *.user
 *.suo
 *.userosscache
 *.sln.docstates
+*.userprefs
+UpgradeLog*.XML
+UpgradeLog*.htm
+
+# JetBrains (Rider, ReSharper)
 .idea/
 _ReSharper*/
 *.[Rr]e[Ss]harper
@@ -29,40 +49,79 @@ _ReSharper*/
 !.vscode/launch.json
 !.vscode/extensions.json
 *.code-workspace
+.history/
 
-# Test Results & Code Coverage
-TestResults/
+# =============================================================================
+# Test Results, Code Coverage & Mutation Testing
+# =============================================================================
+[Tt]est[Rr]esults/
 *.coverage
 *.coveragexml
+*.opencover.xml
+*.cobertura.xml
 coverage/
 [Cc]overage[Rr]eport*/
 [Cc]overage[Rr]esults*/
-
-# Stryker.NET Mutation Testing
 StrykerOutput/
+.stryker-tmp/
 
-# Native AOT / Native Compilation
+# =============================================================================
+# Native Compilation & AOT Artifacts
+# =============================================================================
 *.ilk
 *.exp
 *.lib
 *.pdb.lock
+*.pch
+*.ipch
+*.tlog
+*.idb
 
-# Node.js (Tooling & Scripts)
+# =============================================================================
+# Node.js & Scripting Tools
+# =============================================================================
 node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+pnpm-debug.log*
 
-# Secrets & Local Configs
+# =============================================================================
+# Secrets, Environment & Certificates
+# =============================================================================
+.env
+.env.*
+!.env.example
+secrets.json
 appsettings.Development.json
 appsettings.Local.json
-secrets.json
+appsettings.*.local.json
+*.pfx
+*.p12
 
+# =============================================================================
 # Operating System & Temporary Files
+# =============================================================================
+# Windows
 Thumbs.db
+Thumbs.db:encryptable
 ehthumbs.db
+ehthumbs_vista.db
 Desktop.ini
+$RECYCLE.BIN/
+
+# macOS
 .DS_Store
-*.tmp
-*.bak
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+
+# Linux & Generic Editors
+*~
 *.swp
+*.bak
+*.tmp
+*.orig
+*.rej

@@ -82,6 +82,14 @@ public static class MongoSpecificationEvaluator
         // Stryker disable once Statement : Delegated null validation to GetSort
         ArgumentNullException.ThrowIfNull(specification);
 
+        var filter = GetFilter(specification);
+        if (filter != Builders<TDocument>.Filter.Empty)
+        {
+            findFluent.Filter = (findFluent.Filter is null || findFluent.Filter == Builders<TDocument>.Filter.Empty)
+                ? filter
+                : Builders<TDocument>.Filter.And(findFluent.Filter, filter);
+        }
+
         var sort = GetSort(specification);
         if (sort is not null)
         {
@@ -99,5 +107,25 @@ public static class MongoSpecificationEvaluator
         }
 
         return findFluent;
+    }
+
+    /// <summary>
+    /// Executes a find query on the specified collection using the criteria, ordering, and pagination from a <see cref="QuerySpec{T}"/>.
+    /// </summary>
+    /// <typeparam name="TDocument">The MongoDB document type.</typeparam>
+    /// <param name="collection">The source MongoDB collection.</param>
+    /// <param name="specification">The query specification.</param>
+    /// <returns>A configured fluent find instance.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="collection"/> or <paramref name="specification"/> is <see langword="null"/></exception>
+    public static IFindFluent<TDocument, TDocument> Find<TDocument>(
+        this IMongoCollection<TDocument> collection,
+        QuerySpec<TDocument> specification)
+    {
+        ArgumentNullException.ThrowIfNull(collection);
+        ArgumentNullException.ThrowIfNull(specification);
+
+        var filter = GetFilter(specification);
+        var findFluent = collection.Find(filter);
+        return findFluent.ApplySpecification(specification);
     }
 }

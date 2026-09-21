@@ -20,31 +20,48 @@ public sealed class ExpressionEqualityComparer : IEqualityComparer<Expression?>
 
     private ExpressionEqualityComparer() { }
 
+    private const int MaxDepth = 512;
+
+    [ThreadStatic]
+    private static int s_depth;
+
     /// <inheritdoc/>
+    [SuppressMessage("Design", "CA1065:Do not raise exceptions in unexpected locations", Justification = "Guards against StackOverflowException DoS attack on deeply nested ASTs.")]
     public bool Equals(Expression? x, Expression? y)
     {
-        if (ReferenceEquals(x, y)) return true;
-        if (x is null || y is null) return false;
-        if (x.NodeType != y.NodeType || x.Type != y.Type) return false;
+        if (s_depth > MaxDepth)
+            throw new InvalidOperationException($"Expression tree exceeds maximum supported equality depth of {MaxDepth}.");
 
-        return x switch
+        s_depth++;
+        try
         {
-            BinaryExpression b => EqualsBinary(b, (BinaryExpression)y),
-            UnaryExpression u => EqualsUnary(u, (UnaryExpression)y),
-            MethodCallExpression m => EqualsMethodCall(m, (MethodCallExpression)y),
-            MemberExpression m => EqualsMember(m, (MemberExpression)y),
-            ConstantExpression c => EqualsConstant(c, (ConstantExpression)y),
-            ParameterExpression p => EqualsParameter(p, (ParameterExpression)y),
-            LambdaExpression l => EqualsLambda(l, (LambdaExpression)y),
-            ConditionalExpression c => EqualsConditional(c, (ConditionalExpression)y),
-            InvocationExpression i => EqualsInvocation(i, (InvocationExpression)y),
-            NewExpression n => EqualsNew(n, (NewExpression)y),
-            NewArrayExpression n => EqualsNewArray(n, (NewArrayExpression)y),
-            MemberInitExpression m => EqualsMemberInit(m, (MemberInitExpression)y),
-            ListInitExpression l => EqualsListInit(l, (ListInitExpression)y),
-            TypeBinaryExpression t => EqualsTypeBinary(t, (TypeBinaryExpression)y),
-            _ => false
-        };
+            if (ReferenceEquals(x, y)) return true;
+            if (x is null || y is null) return false;
+            if (x.NodeType != y.NodeType || x.Type != y.Type) return false;
+
+            return x switch
+            {
+                BinaryExpression b => EqualsBinary(b, (BinaryExpression)y),
+                UnaryExpression u => EqualsUnary(u, (UnaryExpression)y),
+                MethodCallExpression m => EqualsMethodCall(m, (MethodCallExpression)y),
+                MemberExpression m => EqualsMember(m, (MemberExpression)y),
+                ConstantExpression c => EqualsConstant(c, (ConstantExpression)y),
+                ParameterExpression p => EqualsParameter(p, (ParameterExpression)y),
+                LambdaExpression l => EqualsLambda(l, (LambdaExpression)y),
+                ConditionalExpression c => EqualsConditional(c, (ConditionalExpression)y),
+                InvocationExpression i => EqualsInvocation(i, (InvocationExpression)y),
+                NewExpression n => EqualsNew(n, (NewExpression)y),
+                NewArrayExpression n => EqualsNewArray(n, (NewArrayExpression)y),
+                MemberInitExpression m => EqualsMemberInit(m, (MemberInitExpression)y),
+                ListInitExpression l => EqualsListInit(l, (ListInitExpression)y),
+                TypeBinaryExpression t => EqualsTypeBinary(t, (TypeBinaryExpression)y),
+                _ => false
+            };
+        }
+        finally
+        {
+            s_depth--;
+        }
     }
 
     /// <inheritdoc/>
@@ -73,9 +90,29 @@ public sealed class ExpressionEqualityComparer : IEqualityComparer<Expression?>
         Equals(x.Object, y.Object) &&
         EqualsReadOnlyCollection(x.Arguments, y.Arguments);
 
-    private bool EqualsMember(MemberExpression x, MemberExpression y) =>
-        x.Member == y.Member &&
-        Equals(x.Expression, y.Expression);
+    private bool EqualsMember(MemberExpression x, MemberExpression y)
+    {
+        if (x.Member != y.Member) return false;
+
+        // Stryker disable once Logical : Provably equivalent; x.Member == y.Member implies identical static/instance kind
+        if (x.Expression is null && y.Expression is null)
+        {
+            var valX = GetStaticMemberValue(x.Member);
+            var valY = GetStaticMemberValue(y.Member);
+            return Equals(valX, valY);
+        }
+
+        return Equals(x.Expression, y.Expression);
+    }
+
+    private static object? GetStaticMemberValue(MemberInfo member)
+    {
+        if (member is PropertyInfo pi && (pi.GetMethod?.IsStatic ?? false))
+            return pi.GetValue(null);
+        if (member is FieldInfo fi && fi.IsStatic)
+            return fi.GetValue(null);
+        return null;
+    }
 
     private static bool EqualsConstant(ConstantExpression x, ConstantExpression y) =>
         Equals(x.Value, y.Value);
@@ -181,5 +218,3 @@ public sealed class ExpressionEqualityComparer : IEqualityComparer<Expression?>
         return true;
     }
 }
-
-

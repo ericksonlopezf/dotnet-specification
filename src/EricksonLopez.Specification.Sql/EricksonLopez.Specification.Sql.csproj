@@ -5,7 +5,7 @@
     <RootNamespace>EricksonLopez.Specification.Sql</RootNamespace>
     <PackageId>EricksonLopez.Specification.Sql</PackageId>
     <Description>SQL generation layer for EricksonLopez.Specification. Translates QuerySpec&lt;T&gt; to a provider-agnostic SQL AST and parameterized SQL strings. No EF Core or Dapper dependency.</Description>
-    <PackageTags>$(CommonPackageTags);sql;sql-generation;sql-translator;sql-ast;query-builder;aot</PackageTags>
+    <PackageTags>$(CommonPackageTags);sql;sql-generation;sql-translator;sql-ast;sql-dialect;query-builder;native-aot</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>

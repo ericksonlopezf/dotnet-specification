@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <Description>MongoDB driver integration for EricksonLopez.Specification. Compiles ISpecification and QuerySpec descriptors into native MongoDB FilterDefinition and SortDefinition.</Description>
-    <PackageTags>$(CommonPackageTags);mongodb;nosql;document-database;repository-pattern;aot</PackageTags>
+    <PackageTags>$(CommonPackageTags);mongodb;nosql;document-database;mongo-csharp-driver;repository-pattern;data-access;native-aot</PackageTags>
     <NoWarn>$(NoWarn);CA1515</NoWarn>
   </PropertyGroup>
 

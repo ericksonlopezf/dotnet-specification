@@ -414,6 +414,134 @@ public sealed class SpecAllAnyTests
         var act = () => Spec.Any<Customer>(null!);
         act.Should().Throw<ArgumentNullException>();
     }
+
+    // ──────────────────────────────────────────────────────────────────────────
+    // Operators (&, |, !, &&, ||) and named methods
+    // ──────────────────────────────────────────────────────────────────────────
+
+    [Fact]
+    public void OperatorAnd_NullLeft_ThrowsArgumentNullException()
+    {
+        var spec = new ActiveCustomerSpecification();
+        var act = () => { var _ = (Specification<Customer>)null! & spec; };
+        act.Should().Throw<ArgumentNullException>().Which.ParamName.Should().Be("left");
+    }
+
+    [Fact]
+    public void OperatorAnd_NullRight_ThrowsArgumentNullException()
+    {
+        var spec = new ActiveCustomerSpecification();
+        var act = () => { var _ = spec & (Specification<Customer>)null!; };
+        act.Should().Throw<ArgumentNullException>().Which.ParamName.Should().Be("right");
+    }
+
+    [Fact]
+    public void BitwiseAnd_NullArguments_ThrowsArgumentNullException()
+    {
+        var spec = new ActiveCustomerSpecification();
+        var actLeft = () => Specification<Customer>.BitwiseAnd(null!, spec);
+        actLeft.Should().Throw<ArgumentNullException>().Which.ParamName.Should().Be("left");
+
+        var actRight = () => Specification<Customer>.BitwiseAnd(spec, null!);
+        actRight.Should().Throw<ArgumentNullException>().Which.ParamName.Should().Be("right");
+    }
+
+    [Fact]
+    public void BitwiseAnd_CombinesWithLogicalAnd()
+    {
+        var spec1 = new ActiveCustomerSpecification();
+        var spec2 = new NotDeletedCustomerSpecification();
+        var combined = Specification<Customer>.BitwiseAnd(spec1, spec2);
+
+        combined.IsSatisfiedBy(new Customer { IsActive = true, IsDeleted = false }).Should().BeTrue();
+        combined.IsSatisfiedBy(new Customer { IsActive = true, IsDeleted = true }).Should().BeFalse();
+        combined.IsSatisfiedBy(new Customer { IsActive = false, IsDeleted = false }).Should().BeFalse();
+    }
+
+    [Fact]
+    public void OperatorOr_NullLeft_ThrowsArgumentNullException()
+    {
+        var spec = new ActiveCustomerSpecification();
+        var act = () => { var _ = (Specification<Customer>)null! | spec; };
+        act.Should().Throw<ArgumentNullException>().Which.ParamName.Should().Be("left");
+    }
+
+    [Fact]
+    public void OperatorOr_NullRight_ThrowsArgumentNullException()
+    {
+        var spec = new ActiveCustomerSpecification();
+        var act = () => { var _ = spec | (Specification<Customer>)null!; };
+        act.Should().Throw<ArgumentNullException>().Which.ParamName.Should().Be("right");
+    }
+
+    [Fact]
+    public void BitwiseOr_NullArguments_ThrowsArgumentNullException()
+    {
+        var spec = new ActiveCustomerSpecification();
+        var actLeft = () => Specification<Customer>.BitwiseOr(null!, spec);
+        actLeft.Should().Throw<ArgumentNullException>().Which.ParamName.Should().Be("left");
+
+        var actRight = () => Specification<Customer>.BitwiseOr(spec, null!);
+        actRight.Should().Throw<ArgumentNullException>().Which.ParamName.Should().Be("right");
+    }
+
+    [Fact]
+    public void BitwiseOr_CombinesWithLogicalOr()
+    {
+        var spec1 = new ActiveCustomerSpecification();
+        var spec2 = new NotDeletedCustomerSpecification();
+        var combined = Specification<Customer>.BitwiseOr(spec1, spec2);
+
+        combined.IsSatisfiedBy(new Customer { IsActive = true, IsDeleted = true }).Should().BeTrue();
+        combined.IsSatisfiedBy(new Customer { IsActive = false, IsDeleted = false }).Should().BeTrue();
+        combined.IsSatisfiedBy(new Customer { IsActive = false, IsDeleted = true }).Should().BeFalse();
+    }
+
+    [Fact]
+    public void OperatorNot_NullSpecification_ThrowsArgumentNullException()
+    {
+        var act = () => { var _ = !(Specification<Customer>)null!; };
+        act.Should().Throw<ArgumentNullException>().Which.ParamName.Should().Be("specification");
+    }
+
+    [Fact]
+    public void LogicalNot_NullSpecification_ThrowsArgumentNullException()
+    {
+        var act = () => Specification<Customer>.LogicalNot(null!);
+        act.Should().Throw<ArgumentNullException>().Which.ParamName.Should().Be("specification");
+    }
+
+    [Fact]
+    public void LogicalNot_NegatesSpecification()
+    {
+        var spec = new ActiveCustomerSpecification();
+        var negated = Specification<Customer>.LogicalNot(spec);
+
+        negated.IsSatisfiedBy(new Customer { IsActive = true }).Should().BeFalse();
+        negated.IsSatisfiedBy(new Customer { IsActive = false }).Should().BeTrue();
+    }
+
+    [Fact]
+    public void ConditionalAnd_ShortCircuitOperator_EvaluatesBothOperands()
+    {
+        var spec1 = new ActiveCustomerSpecification();
+        var spec2 = new NotDeletedCustomerSpecification();
+        var combined = spec1 && spec2;
+
+        combined.IsSatisfiedBy(new Customer { IsActive = true, IsDeleted = true }).Should().BeFalse();
+        combined.IsSatisfiedBy(new Customer { IsActive = true, IsDeleted = false }).Should().BeTrue();
+    }
+
+    [Fact]
+    public void ConditionalOr_ShortCircuitOperator_EvaluatesBothOperands()
+    {
+        var spec1 = new ActiveCustomerSpecification();
+        var spec2 = new NotDeletedCustomerSpecification();
+        var combined = spec1 || spec2;
+
+        combined.IsSatisfiedBy(new Customer { IsActive = false, IsDeleted = false }).Should().BeTrue();
+        combined.IsSatisfiedBy(new Customer { IsActive = false, IsDeleted = true }).Should().BeFalse();
+    }
 }
 
 /// <summary>Tests for automatic ExpressionSimplifier integration in CompositeSpecification.</summary>

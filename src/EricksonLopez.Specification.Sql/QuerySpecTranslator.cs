@@ -81,9 +81,38 @@ public sealed class QuerySpecTranslator<T>
         {
             if (spec.SkipCount == null && spec.TakeCount == null && spec.OrderClauses.IsEmpty && !spec.IsDistinct && spec.Cursor == null)
             {
+                var currentParameters = new List<SqlParameter>();
+                var counter = 0;
+                TranslateFilters(spec.Criteria, currentParameters, ref counter);
+
+                // Stryker disable once Block,Equality,Logical,Statement : Parameterless query fast-path optimization
+                if (cachedPlan.Parameters.Length == 0 && currentParameters.Count == 0)
+                {
+                    Diagnostics.SpecificationDiagnostics.SqlTranslations.Add(1);
+                    Diagnostics.SpecificationDiagnostics.SqlTranslationDuration.Record(sw.Elapsed.TotalMilliseconds);
+                    return cachedPlan;
+                }
+
+                var parametersMatch = cachedPlan.Parameters.Length == currentParameters.Count;
+                if (parametersMatch)
+                {
+                    for (var i = 0; i < cachedPlan.Parameters.Length; i++)
+                    {
+                        if (!Equals(cachedPlan.Parameters[i].Value, currentParameters[i].Value) ||
+                            cachedPlan.Parameters[i].Name != currentParameters[i].Name)
+                        {
+                            parametersMatch = false;
+                            // Stryker disable once Statement : Early exit loop optimization
+                            break;
+                        }
+                    }
+                }
+
+                var reparameterizedPlan = parametersMatch ? cachedPlan : cachedPlan with { Parameters = [.. currentParameters] };
+
                 Diagnostics.SpecificationDiagnostics.SqlTranslations.Add(1);
                 Diagnostics.SpecificationDiagnostics.SqlTranslationDuration.Record(sw.Elapsed.TotalMilliseconds);
-                return cachedPlan;
+                return reparameterizedPlan;
             }
         }
 

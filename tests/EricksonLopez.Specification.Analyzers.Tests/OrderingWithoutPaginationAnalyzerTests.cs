@@ -79,4 +79,57 @@ public sealed class OrderingWithoutPaginationAnalyzerTests
 
         await AnalyzerTestHelper.VerifyAnalyzerAsync<OrderingWithoutPaginationAnalyzer>(code);
     }
+
+    [Fact]
+    public async Task Analyzer_UninitializedVariable_NoDiagnostic()
+    {
+        var code = """
+            using EricksonLopez.Specification;
+
+            public class Service
+            {
+                public void Query()
+                {
+                    QuerySpec<string> spec;
+                }
+            }
+            """;
+
+        await AnalyzerTestHelper.VerifyAnalyzerAsync<OrderingWithoutPaginationAnalyzer>(code);
+    }
+
+    [Fact]
+    public async Task Analyzer_NonQuerySpecOrderedVariable_NoDiagnostic()
+    {
+        var code = """
+            using System.Linq;
+            using System.Collections.Generic;
+
+            public class Service
+            {
+                public void Query()
+                {
+                    var list = new List<int>().OrderBy(x => x);
+                }
+            }
+            """;
+
+        await AnalyzerTestHelper.VerifyAnalyzerAsync<OrderingWithoutPaginationAnalyzer>(code);
+    }
+
+    [Fact]
+    public void IsQuerySpecType_WhenTypeNull_ReturnsFalse()
+    {
+        var method = typeof(OrderingWithoutPaginationAnalyzer).GetMethod("IsQuerySpecType", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static)!;
+        var result = (bool)method.Invoke(null, new object?[] { null })!;
+        result.Should().BeFalse();
+    }
+
+    [Fact]
+    public void GetEntityTypeName_WhenTypeNonGenericOrNull_ReturnsFallback()
+    {
+        var method = typeof(OrderingWithoutPaginationAnalyzer).GetMethod("GetEntityTypeName", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static)!;
+        var result = (string)method.Invoke(null, new object?[] { null })!;
+        result.Should().Be("T");
+    }
 }

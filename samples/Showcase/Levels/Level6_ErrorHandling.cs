@@ -120,6 +120,16 @@ public sealed class Level6_ErrorHandling : ILevel
             _logger.LogWarning("[ArgumentOutOfRangeException] Skip < 0: {Msg}", ex.ParamName);
         }
 
+        // 3b. ArgumentException — lower bound > upper bound in Spec.Between
+        try
+        {
+            var _ = Spec.Between<Customer, int>(c => c.TotalPurchases, lower: 50, upper: 10);
+        }
+        catch (ArgumentException ex)
+        {
+            _logger.LogWarning("[ArgumentException] Spec.Between lower > upper: {Msg}", ex.Message);
+        }
+
         // ─────────────────────────────────────────────────────────────────
         // 4. In-Memory evaluation with ExpressionInterpreter (AOT-safe)
         // ─────────────────────────────────────────────────────────────────

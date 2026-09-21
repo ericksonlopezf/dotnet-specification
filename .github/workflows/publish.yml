@@ -47,13 +47,13 @@ jobs:
       can_proceed: ${{ steps.evaluate.outputs.can_proceed }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
 
       - name: Evaluate Mutation Freshness & Drift
         id: evaluate
-        uses: actions/github-script@v7
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         env:
           STRYKER_GATE_MODE: evaluate
         with:
@@ -77,7 +77,13 @@ jobs:
     name: Pack & Publish
     runs-on: ubuntu-latest
     needs: [evaluate-mutation-gate, run-mutation-testing]
-    if: always() && needs.evaluate-mutation-gate.result == 'success' && (needs.run-mutation-testing.result == 'success' || needs.run-mutation-testing.result == 'skipped')
+    if: |
+      always() &&
+      (needs.evaluate-mutation-gate.result == 'success') &&
+      (
+        (needs.evaluate-mutation-gate.outputs.needs_stryker == 'false' && needs.evaluate-mutation-gate.outputs.can_proceed == 'true') ||
+        (needs.evaluate-mutation-gate.outputs.needs_stryker == 'true' && needs.run-mutation-testing.result == 'success')
+      )
     permissions:
       id-token: write        # Required for Sigstore OIDC attestation
       contents: write        # Required for GitHub Release creation
@@ -87,7 +93,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
 
@@ -114,7 +120,7 @@ jobs:
       # ─── Enforce Stryker Mutation Testing Quality Gate ────────────────────────
       - name: Enforce Stryker Mutation Quality Gate
         id: mutation-gate
-        uses: actions/github-script@v7
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         env:
           STRYKER_GATE_MODE: enforce
         with:
@@ -123,7 +129,7 @@ jobs:
             await verifyMutationGate({ github, context, core, mode: 'enforce' });
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
         with:
           dotnet-version: "10.0.x"
 
@@ -133,7 +139,7 @@ jobs:
           SNK_KEY: ${{ secrets.SNK_KEY }}
         run: |
           if [ -n "$SNK_KEY" ]; then
-            echo "$SNK_KEY" | tr -d '\n\r ' | base64 --decode > EricksonLopez.Specification.snk
+            echo "$SNK_KEY" | tr -d '\n\r ' | base64 --decode > EricksonLopez.snk
           fi
 
       - name: Restore
@@ -154,7 +160,7 @@ jobs:
             -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover
 
       - name: Upload coverage to Codecov (publish gate)
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: "**/coverage.opencover.xml"
@@ -166,7 +172,7 @@ jobs:
       - name: Pack All Packages
         run: |
           VERSION="${{ steps.version.outputs.VERSION }}"
-          PACK_ARGS="--no-build --configuration Release --output ./nupkgs -p:VersionPrefix=$VERSION -p:TreatWarningsAsErrors=true"
+          PACK_ARGS="--no-build --configuration Release --output ./nupkgs -p:VersionPrefix=$VERSION -p:TreatWarningsAsErrors=true -m:1 /p:NodeReuse=false"
           dotnet pack src/EricksonLopez.Specification.Abstractions/EricksonLopez.Specification.Abstractions.csproj $PACK_ARGS
           dotnet pack src/EricksonLopez.Specification/EricksonLopez.Specification.csproj $PACK_ARGS
           dotnet pack src/EricksonLopez.Specification.Analyzers/EricksonLopez.Specification.Analyzers.csproj $PACK_ARGS
@@ -181,6 +187,7 @@ jobs:
           dotnet pack src/EricksonLopez.Specification.MySql/EricksonLopez.Specification.MySql.csproj $PACK_ARGS
           dotnet pack src/EricksonLopez.Specification.Oracle/EricksonLopez.Specification.Oracle.csproj $PACK_ARGS
           dotnet pack src/EricksonLopez.Specification.PostgreSql/EricksonLopez.Specification.PostgreSql.csproj $PACK_ARGS
+          dotnet pack src/EricksonLopez.Specification.Result/EricksonLopez.Specification.Result.csproj $PACK_ARGS
           dotnet pack src/EricksonLopez.Specification.Sql/EricksonLopez.Specification.Sql.csproj $PACK_ARGS
           dotnet pack src/EricksonLopez.Specification.Sqlite/EricksonLopez.Specification.Sqlite.csproj $PACK_ARGS
           echo "Packed packages:"
@@ -188,13 +195,13 @@ jobs:
 
       # ─── Sigstore Provenance Attestation ─────────────────────────────────────
       - name: Generate Sigstore Provenance Attestation
-        uses: actions/attest-build-provenance@v2
+        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
         with:
           subject-path: './nupkgs/*.nupkg'
 
       # ─── NuGet.org publish via OIDC ──────────────────────────────────────────
       - name: NuGet login (OIDC)
-        uses: NuGet/login@v1
+        uses: NuGet/login@8d196754b4036150537f80ac539e15c2f1028841 # v1.2.0
         id: login
         with:
           user: ericksonlopezf
@@ -209,7 +216,7 @@ jobs:
       # ─── GitHub Release ───────────────────────────────────────────────────────
       - name: Create GitHub Release (tag-triggered only)
         if: startsWith(github.ref, 'refs/tags/')
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@efb35369e0ad2afab669f228072c1b0d510eae64 # v3.0.3
         with:
           tag_name: v${{ steps.version.outputs.VERSION }}
           name: Release ${{ steps.version.outputs.VERSION }}
@@ -233,6 +240,7 @@ jobs:
             | `EricksonLopez.Specification.MySql` | `${{ steps.version.outputs.VERSION }}` |
             | `EricksonLopez.Specification.Oracle` | `${{ steps.version.outputs.VERSION }}` |
             | `EricksonLopez.Specification.PostgreSql` | `${{ steps.version.outputs.VERSION }}` |
+            | `EricksonLopez.Specification.Result` | `${{ steps.version.outputs.VERSION }}` |
             | `EricksonLopez.Specification.Sql` | `${{ steps.version.outputs.VERSION }}` |
             | `EricksonLopez.Specification.Sqlite` | `${{ steps.version.outputs.VERSION }}` |
 
