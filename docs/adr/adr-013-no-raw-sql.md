@@ -1,5 +1,11 @@
 # adr-013: No Raw SQL / WhereRaw()
 
+## Status
+Accepted
+
+## Date
+2026-08-13
+
 **Status**: Accepted  
 **Date**: 2026-08-13  
 **Deciders**: Erickson Lopez

@@ -1,5 +1,6 @@
 // Copyright © Erickson Lopez. MIT License.
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
@@ -83,39 +84,77 @@ public sealed class Level1_QuickStart : ILevel
         // ─────────────────────────────────────────────────────────────────
         Expression<Func<Customer, bool>> expr = activeSpec.ToExpression();
         string debugStr = activeSpec.ToDebugString();
+        string formattedViaRegistry = ExpressionDebugFormatterRegistry.Format(expr);
         _logger.LogInformation("[ToExpression]  Expression: {Expr}", expr);
         _logger.LogInformation("[ToDebugString] Readable format: {Debug}", debugStr);
+        _logger.LogInformation("[RegistryFormat] Formatted via registry: {Formatted}", formattedViaRegistry);
 
         // ─────────────────────────────────────────────────────────────────
-        // 5. Boolean composition: And / Or / Not
-        //    Specification<T> provides these combinators directly.
+        // 5. Boolean composition: And / Or / Not & C# Language Operators
+        //    Specification<T> provides combinator methods and operator overloads:
+        //    &, |, !, and short-circuiting && and || via operator true/false.
         // ─────────────────────────────────────────────────────────────────
-        var activeAndVip = activeSpec.And(vipSpec);         // AND
-        var activeOrVip = activeSpec.Or(vipSpec);          // OR
+        var activeAndVip = activeSpec.And(vipSpec);         // AND method
+        var activeOrVip = activeSpec.Or(vipSpec);          // OR method
         var notActive = activeSpec.Not();                // NOT (NegatedSpecification)
 
-        _logger.LogInformation("[And] Alice (active && vip): {R}", activeAndVip.IsSatisfiedBy(alice));
-        _logger.LogInformation("[Or ] Bob  (active || vip) : {R}", activeOrVip.IsSatisfiedBy(bob));
-        _logger.LogInformation("[Not] Alice NOT active     : {R}", notActive.IsSatisfiedBy(alice));
+        // C# Language Operators & Named Alternates
+        var opAnd = activeSpec & vipSpec;                // operator &
+        var opOr = activeSpec | vipSpec;                 // operator |
+        var opNot = !activeSpec;                         // operator !
+        var opShortAnd = activeSpec && vipSpec;          // short-circuit && (via operator false)
+        var opShortOr = activeSpec || vipSpec;           // short-circuit || (via operator true)
+
+        var bitwiseAndSpec = Specification<Customer>.BitwiseAnd(activeSpec, vipSpec);
+        var bitwiseOrSpec = Specification<Customer>.BitwiseOr(activeSpec, vipSpec);
+        var logicalNotSpec = Specification<Customer>.LogicalNot(activeSpec);
+
+        _logger.LogInformation("[Operators] op&: {A}, op|: {O}, op!: {N}, op&&: {SA}, op||: {SO}",
+            opAnd.IsSatisfiedBy(alice), opOr.IsSatisfiedBy(alice), opNot.IsSatisfiedBy(alice),
+            opShortAnd.IsSatisfiedBy(alice), opShortOr.IsSatisfiedBy(alice));
+        _logger.LogInformation("[And] Alice (active && vip): {R} | BitwiseAnd: {B}", activeAndVip.IsSatisfiedBy(alice), bitwiseAndSpec.IsSatisfiedBy(alice));
+        _logger.LogInformation("[Or ] Bob  (active || vip) : {R} | BitwiseOr: {B}", activeOrVip.IsSatisfiedBy(bob), bitwiseOrSpec.IsSatisfiedBy(bob));
+        _logger.LogInformation("[Not] Alice NOT active     : {R} | LogicalNot: {B}", notActive.IsSatisfiedBy(alice), logicalNotSpec.IsSatisfiedBy(alice));
 
         // ─────────────────────────────────────────────────────────────────
         // 6. Spec.All<T> and Spec.Any<T> — Multi-specification composition
+        //    Supports both params arrays and IEnumerable<Specification<T>> collections.
         // ─────────────────────────────────────────────────────────────────
         var highCreditSpec = new HighCreditCustomerSpecification(5_000m);
         var allSpec = Spec.All(activeSpec, vipSpec, highCreditSpec);
         var anySpec = Spec.Any(vipSpec, highCreditSpec);
 
-        _logger.LogInformation("[Spec.All] Satisfies all: {R}", allSpec.IsSatisfiedBy(alice));
-        _logger.LogInformation("[Spec.Any] Satisfies any: {R}", anySpec.IsSatisfiedBy(alice));
+        // IEnumerable overloads
+        var specCollection = new List<Specification<Customer>> { activeSpec, vipSpec, highCreditSpec };
+        var allFromEnumerable = Spec.All(specCollection);
+        var anyFromEnumerable = Spec.Any(specCollection);
+
+        _logger.LogInformation("[Spec.All] Satisfies all (params): {R} | (IEnumerable): {E}", allSpec.IsSatisfiedBy(alice), allFromEnumerable.IsSatisfiedBy(alice));
+        _logger.LogInformation("[Spec.Any] Satisfies any (params): {R} | (IEnumerable): {E}", anySpec.IsSatisfiedBy(alice), anyFromEnumerable.IsSatisfiedBy(alice));
 
         // ─────────────────────────────────────────────────────────────────
-        // 7. Spec.Between, Spec.Search, and Spec.FullText
+        // 7. Spec.Between, Spec.InRange, Spec.Search, Spec.FullText, Spec.MatchesFullText
+        //    Between supports both non-nullable and nullable struct properties.
+        //    Spec.InRange<T,TProperty> is a direct alias for Spec.Between — same semantics.
+        //    Spec.MatchesFullText<T> is a direct alias for Spec.FullText — same semantics.
         // ─────────────────────────────────────────────────────────────────
         var betweenSpec = Spec.Between<Customer, int>(c => c.TotalPurchases, 10, 50);
+        alice.DiscountRate = 0.15m;
+        var nullableBetweenSpec = Spec.Between<Customer, decimal>(c => c.DiscountRate, 0.05m, 0.20m);
+
+        // Spec.InRange<T,TProperty> — alias for Between, prefer when semantics are "inclusive range containment".
+        var inRangeSpec = Spec.InRange<Customer, int>(c => c.TotalPurchases, 10, 50);
+        _logger.LogInformation("[Spec.InRange] Same as Between — Alice in [10,50]: {R}", inRangeSpec.IsSatisfiedBy(alice));
+
         var searchSpec = Spec.Search<Customer>("Ali", c => c.Name, c => c.Email);
         var fullTextSpec = Spec.FullText<Customer>(c => c.Name, "Alice");
 
+        // Spec.MatchesFullText<T> — alias for FullText (case-sensitive Contains).
+        var matchesFullTextSpec = Spec.MatchesFullText<Customer>(c => c.Name, "Ali");
+        _logger.LogInformation("[Spec.MatchesFullText] Alias for FullText — Alice matches 'Ali': {R}", matchesFullTextSpec.IsSatisfiedBy(alice));
+
         _logger.LogInformation("[Spec.Between] Alice purchases in [10,50]: {R}", betweenSpec.IsSatisfiedBy(alice));
+        _logger.LogInformation("[Spec.Between (Nullable)] Alice discount in [0.05, 0.20]: {R}", nullableBetweenSpec.IsSatisfiedBy(alice));
         _logger.LogInformation("[Spec.Search]  Alice matches 'Ali': {R}", searchSpec.IsSatisfiedBy(alice));
         _logger.LogInformation("[Spec.FullText] Alice matches 'Alice': {R}", fullTextSpec.IsSatisfiedBy(alice));
 

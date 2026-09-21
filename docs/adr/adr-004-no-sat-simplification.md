@@ -1,5 +1,11 @@
 # adr-004: No SAT-Based Predicate Simplification
 
+## Status
+Accepted
+
+## Date
+2026-08-12
+
 **Status**: Accepted  
 **Date**: 2026-08-12  
 **Deciders**: EricksonLopez.Specification architecture audit  

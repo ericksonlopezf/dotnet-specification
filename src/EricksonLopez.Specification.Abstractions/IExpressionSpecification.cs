@@ -1,7 +1,6 @@
 // Copyright © Erickson Lopez. MIT License.
 using System;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using System.Linq.Expressions;
 
 namespace EricksonLopez.Specification;
@@ -26,9 +25,8 @@ public interface IExpressionSpecification<
     /// </summary>
     /// <returns>A string representation of the specification expression.</returns>
     /// <remarks>
-    /// The default implementation delegates to <see cref="ExpressionDebugFormatter"/>.
+    /// The default implementation delegates to <see cref="ExpressionDebugFormatterRegistry"/>.
     /// </remarks>
-    string ToDebugString() => ExpressionDebugFormatter.Format(ToExpression());
+    string ToDebugString() => ExpressionDebugFormatterRegistry.Format(ToExpression());
 }
-
 

@@ -1,5 +1,11 @@
 # adr-001: No Write Repository (`IRepository<T>`)
 
+## Status
+Accepted
+
+## Date
+2026-08-12
+
 **Status**: Accepted  
 **Date**: 2026-08-12  
 **Deciders**: EricksonLopez.Specification architecture audit  

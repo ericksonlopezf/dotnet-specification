@@ -5,10 +5,10 @@ namespace EricksonLopez.Specification.Sql;
 /// <summary>Specifies the type of SQL query to generate.</summary>
 public enum SqlQueryType
 {
-    /// <summary>A standard SELECT query.</summary>
+    /// <summary>Specifies a standard SELECT query returning rows.</summary>
     Select,
-    /// <summary>A COUNT(*) query.</summary>
+    /// <summary>Specifies a COUNT(*) query returning the row count.</summary>
     Count,
-    /// <summary>An EXISTS query (e.g. SELECT 1 ... LIMIT 1).</summary>
+    /// <summary>Specifies an EXISTS query returning whether matching rows exist.</summary>
     Exists
 }

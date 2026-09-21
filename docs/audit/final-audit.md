@@ -182,18 +182,18 @@ All packages include embedded `icon.png`, `README.md`, MIT license, and `.snupkg
 
 ## 19. Documentation
 
-- [`docs/when-to-use-specification.md`](file:///d:/DevData/ericksonlopez.dev/dotnet-specification/docs/when-to-use-specification.md) — Strategic DDD guidance and decision flowchart.
-- [`migration.md`](file:///d:/DevData/ericksonlopez.dev/dotnet-specification/migration.md) — Step-by-step migration guide from Ardalis.Specification.
-- [`CHANGELOG.md`](file:///d:/DevData/ericksonlopez.dev/dotnet-specification/CHANGELOG.md) — SemVer release notes for v1.0.0.
-- [`docs/aot.md`](file:///d:/DevData/ericksonlopez.dev/dotnet-specification/docs/aot.md) — Native AOT node support matrix and trimming guide.
-- [`docs/benchmarks.md`](file:///d:/DevData/ericksonlopez.dev/dotnet-specification/docs/benchmarks.md) — Benchmark methodology and measurements.
-- [`docs/adr/`](file:///d:/DevData/ericksonlopez.dev/dotnet-specification/docs/adr/) — 28 Architecture Decision Records.
+- [`docs/when-to-use-specification.md`](../when-to-use-specification.md) — Strategic DDD guidance and decision flowchart.
+- [`docs/migration-from-ardalis.md`](../migration-from-ardalis.md) — Step-by-step migration guide from Ardalis.Specification.
+- [`CHANGELOG.md`](../../CHANGELOG.md) — SemVer release notes for v1.0.0.
+- [`docs/aot.md`](../aot.md) — Native AOT node support matrix and trimming guide.
+- [`docs/benchmarks.md`](../benchmarks.md) — Benchmark methodology and measurements.
+- [`docs/adr/`](../adr/README.md) — 28 Architecture Decision Records.
 
 ---
 
 ## 20. Regression Matrix
 
-Complete traceability documented in [`docs/audit/regression-matrix.md`](file:///d:/DevData/ericksonlopez.dev/dotnet-specification/docs/audit/regression-matrix.md) covering all 17 audit items (100% FIXED).
+Complete traceability documented in [`docs/audit/regression-matrix.md`](regression-matrix.md) covering all 17 audit items (100% FIXED).
 
 ---
 

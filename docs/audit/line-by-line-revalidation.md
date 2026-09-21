@@ -357,14 +357,14 @@ dotnet test tests/EricksonLopez.Specification.Tests --filter QuerySpecTests
 
 | Required Deliverable | Repository File | Content Verification |
 |---|---|---|
-| **Baseline Audit** | [`docs/audit/baseline.md`](file:///d:/DevData/ericksonlopez.dev/dotnet-specification/docs/audit/baseline.md) | Initial pre-fix snapshot (score 78/100, 17 projects). |
-| **Final Verdict (23 sections)** | [`docs/audit/final-audit.md`](file:///d:/DevData/ericksonlopez.dev/dotnet-specification/docs/audit/final-audit.md) | Score 97/100, Verdict RELEASE READY. |
-| **Regression Matrix** | [`docs/audit/regression-matrix.md`](file:///d:/DevData/ericksonlopez.dev/dotnet-specification/docs/audit/regression-matrix.md) | Traceability of 17 remediated and verified tasks. |
-| **DDD Guide** | [`docs/when-to-use-specification.md`](file:///d:/DevData/ericksonlopez.dev/dotnet-specification/docs/when-to-use-specification.md) | Specification vs Invariants, Value Objects, Domain Services, Policies. |
-| **Migration Guide** | [`docs/migration-from-ardalis.md`](file:///d:/DevData/ericksonlopez.dev/dotnet-specification/docs/migration-from-ardalis.md) | Ardalis vs EricksonLopez comparison and code recipes. |
-| **Native AOT Guide** | [`docs/aot.md`](file:///d:/DevData/ericksonlopez.dev/dotnet-specification/docs/aot.md) | Matrix of 15 AST node types, BCL annotations, and trimming rules. |
-| **Benchmarks Report** | [`docs/benchmarks.md`](file:///d:/DevData/ericksonlopez.dev/dotnet-specification/docs/benchmarks.md) | Real measurements with BenchmarkDotNet on .NET 10 (93 ns composition, 44 ns AOT). |
-| **Release Notes** | [`CHANGELOG.md`](file:///d:/DevData/ericksonlopez.dev/dotnet-specification/CHANGELOG.md) | Full SemVer notes with architecture summary and fixes. |
+| **Baseline Audit** | [`docs/audit/baseline.md`](baseline.md) | Initial pre-fix snapshot (score 78/100, 17 projects). |
+| **Final Verdict (23 sections)** | [`docs/audit/final-audit.md`](final-audit.md) | Score 97/100, Verdict RELEASE READY. |
+| **Regression Matrix** | [`docs/audit/regression-matrix.md`](regression-matrix.md) | Traceability of 17 remediated and verified tasks. |
+| **DDD Guide** | [`docs/when-to-use-specification.md`](../when-to-use-specification.md) | Specification vs Invariants, Value Objects, Domain Services, Policies. |
+| **Migration Guide** | [`docs/migration-from-ardalis.md`](../migration-from-ardalis.md) | Ardalis vs EricksonLopez comparison and code recipes. |
+| **Native AOT Guide** | [`docs/aot.md`](../aot.md) | Matrix of 15 AST node types, BCL annotations, and trimming rules. |
+| **Benchmarks Report** | [`docs/benchmarks.md`](../benchmarks.md) | Real measurements with BenchmarkDotNet on .NET 10 (93 ns composition, 44 ns AOT). |
+| **Release Notes** | [`CHANGELOG.md`](../../CHANGELOG.md) | Full SemVer notes with architecture summary and fixes. |
 
 ---
 

@@ -1,5 +1,5 @@
-Listado de rutas de carpetas para el volumen WorkDisc
-El número de serie del volumen es 000000EF FC5B:A535
+Folder PATH listing for volume WorkDisc
+Volume serial number is 000000EF FC5B:A535
 D:.
 |   docker-compose.yml
 |   README.md

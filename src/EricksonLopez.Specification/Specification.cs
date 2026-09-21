@@ -26,6 +26,11 @@ public abstract class Specification<
 {
     private readonly Lazy<Expression<Func<T, bool>>> _expression;
 
+    static Specification()
+    {
+        ExpressionDebugFormatterRegistry.Formatter = ExpressionDebugFormatter.Format;
+    }
+
     /// <summary>
     /// Initializes a new instance of the <see cref="Specification{T}"/> class.
     /// </summary>
@@ -135,6 +140,90 @@ public abstract class Specification<
         ArgumentNullException.ThrowIfNull(specification);
         return specification.ToQuerySpec();
     }
+
+    /// <summary>
+    /// Combines two specifications using logical AND.
+    /// </summary>
+    /// <param name="left">The left specification.</param>
+    /// <param name="right">The right specification.</param>
+    /// <returns>A new composite specification representing (left AND right).</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="left"/> or <paramref name="right"/> is <see langword="null"/></exception>
+    public static Specification<T> operator &(Specification<T> left, Specification<T> right)
+    {
+        ArgumentNullException.ThrowIfNull(left);
+        ArgumentNullException.ThrowIfNull(right);
+        return left.And(right);
+    }
+
+    /// <summary>
+    /// Combines two specifications using logical AND as a named alternative to <see cref="operator &amp;"/>.
+    /// </summary>
+    /// <param name="left">The left specification.</param>
+    /// <param name="right">The right specification.</param>
+    /// <returns>A new composite specification representing (<paramref name="left"/> AND <paramref name="right"/>).</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="left"/> or <paramref name="right"/> is <see langword="null"/></exception>
+    public static Specification<T> BitwiseAnd(Specification<T> left, Specification<T> right) => left & right;
+
+    /// <summary>
+    /// Combines two specifications using logical OR.
+    /// </summary>
+    /// <param name="left">The left specification.</param>
+    /// <param name="right">The right specification.</param>
+    /// <returns>A new composite specification representing (left OR right).</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="left"/> or <paramref name="right"/> is <see langword="null"/></exception>
+    public static Specification<T> operator |(Specification<T> left, Specification<T> right)
+    {
+        ArgumentNullException.ThrowIfNull(left);
+        ArgumentNullException.ThrowIfNull(right);
+        return left.Or(right);
+    }
+
+    /// <summary>
+    /// Combines two specifications using logical OR as a named alternative to <see cref="operator |"/>.
+    /// </summary>
+    /// <param name="left">The left specification.</param>
+    /// <param name="right">The right specification.</param>
+    /// <returns>A new composite specification representing (<paramref name="left"/> OR <paramref name="right"/>).</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="left"/> or <paramref name="right"/> is <see langword="null"/></exception>
+    public static Specification<T> BitwiseOr(Specification<T> left, Specification<T> right) => left | right;
+
+    /// <summary>
+    /// Negates the specified specification.
+    /// </summary>
+    /// <param name="specification">The specification to negate.</param>
+    /// <returns>A new negated specification representing (NOT specification).</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="specification"/> is <see langword="null"/></exception>
+    public static Specification<T> operator !(Specification<T> specification)
+    {
+        ArgumentNullException.ThrowIfNull(specification);
+        return specification.Not();
+    }
+
+    /// <summary>
+    /// Negates the specified specification as a named alternative to <see cref="operator !"/>.
+    /// </summary>
+    /// <param name="specification">The specification to negate.</param>
+    /// <returns>A new negated specification representing (NOT <paramref name="specification"/>).</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="specification"/> is <see langword="null"/></exception>
+    public static Specification<T> LogicalNot(Specification<T> specification) => !specification;
+
+    /// <summary>
+    /// Determines whether the specification evaluates to false for short-circuit evaluation in logical AND expressions.
+    /// </summary>
+    /// <param name="specification">The specification to evaluate.</param>
+    /// <returns>Always <see langword="false"/> to ensure both operands are evaluated.</returns>
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "CA2225:Operator overloads have named alternates",
+        Justification = "Short-circuit operator pair (true/false) is an internal C# language idiom without a standard named alternative.")]
+    public static bool operator false(Specification<T> specification) => false;
+
+    /// <summary>
+    /// Determines whether the specification evaluates to true for short-circuit evaluation in logical OR expressions.
+    /// </summary>
+    /// <param name="specification">The specification to evaluate.</param>
+    /// <returns>Always <see langword="false"/> to ensure both operands are evaluated.</returns>
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "CA2225:Operator overloads have named alternates",
+        Justification = "Short-circuit operator pair (true/false) is an internal C# language idiom without a standard named alternative.")]
+    public static bool operator true(Specification<T> specification) => false;
 }
 
 

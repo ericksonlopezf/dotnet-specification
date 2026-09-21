@@ -1,5 +1,11 @@
 # adr-020: Source Generator Strategy — Compile-Time Column Resolvers and Strongly-Typed Ordering Helpers
 
+## Status
+Accepted
+
+## Date
+2026-08-14
+
 **Status**: Implemented *(v1.0 publish exclusion reversed — see note below)*
 **Date**: 2026-08-14 (Updated: 2026-08-19)
 **Deciders**: EricksonLopez.Specification architecture audit

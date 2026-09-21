@@ -1,5 +1,11 @@
 # adr-018: Remove AsNoTracking and AsSplitQuery from QuerySpec<T>
 
+## Status
+Accepted
+
+## Date
+2026-08-14
+
 **Status**: Accepted  
 **Date**: 2026-08-14  
 **Deciders**: EricksonLopez.Specification architecture audit  

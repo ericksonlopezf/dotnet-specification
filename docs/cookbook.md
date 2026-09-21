@@ -33,6 +33,8 @@ Practical, copy-paste-ready recipes for every production scenario across Domain-
 25. [Recipe 25: High-Throughput In-Memory Evaluation with Bounded LRU Cache](#recipe-25-high-throughput-in-memory-evaluation-with-bounded-lru-cache)
 26. [Recipe 26: 100% NativeAOT & Dapper.AOT Configuration](#recipe-26-100-nativeaot--dapperaot-configuration)
 27. [Recipe 27: OpenTelemetry Metrics & Diagnostic Tracing](#recipe-27-opentelemetry-metrics--diagnostic-tracing)
+28. [Recipe 28: Functional Result Pattern (ReadRepositoryResultExtensions)](#recipe-28-functional-result-pattern-readrepositoryresultextensions)
+29. [Recipe 29: Fluent MongoDB Querying (MongoSpecificationEvaluator)](#recipe-29-fluent-mongodb-querying-mongospecificationevaluator)
 
 ---
 
@@ -593,3 +595,78 @@ var meterProvider = Sdk.CreateMeterProviderBuilder()
 // - specification.compositions_total
 // - specification.sql_translations_total
 ```
+
+---
+
+## Recipe 28: Functional Result Pattern (ReadRepositoryResultExtensions)
+
+**Problem**: Execute specifications via `IReadRepository<T>` returning functional `Result<T>` envelopes without throwing expected business exceptions (like not-found or multiple matches).
+
+```csharp
+using System;
+using System.Threading;
+using System.Threading.Tasks;
+using EricksonLopez.Result;
+using EricksonLopez.Specification;
+using EricksonLopez.Specification.Result;
+
+public sealed class GetCustomerByIdQueryHandler
+{
+    private readonly IReadRepository<Customer> _repository;
+
+    public GetCustomerByIdQueryHandler(IReadRepository<Customer> repository)
+    {
+        _repository = repository;
+    }
+
+    public async Task<Result<Customer>> Handle(Guid customerId, CancellationToken ct)
+    {
+        // Executes query returning Result.Success(customer) or Result.Failure(Error.NotFound)
+        Result<Customer> result = await _repository.GetByIdResultAsync<Customer, Guid>(customerId, ct);
+
+        return result;
+    }
+}
+```
+
+> **Note**: `OperationCanceledException` is automatically preserved and rethrown to ensure cooperative task cancellation.
+
+---
+
+## Recipe 29: Fluent MongoDB Querying (MongoSpecificationEvaluator)
+
+**Problem**: Query MongoDB collections using domain specifications and `QuerySpec<TDocument>` directly via fluent drivers.
+
+```csharp
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+using MongoDB.Driver;
+using EricksonLopez.Specification;
+using EricksonLopez.Specification.MongoDB;
+
+public sealed class MongoCustomerService
+{
+    private readonly IMongoCollection<Customer> _mongoCollection;
+
+    public MongoCustomerService(IMongoCollection<Customer> mongoCollection)
+    {
+        _mongoCollection = mongoCollection;
+    }
+
+    public async Task<List<Customer>> GetActiveVipCustomersAsync(CancellationToken ct)
+    {
+        var activeSpec = new ActiveCustomerSpecification();
+        var querySpec = QuerySpec<Customer>.Empty
+            .And(activeSpec)
+            .OrderByDescending(c => c.TotalPurchases)
+            .Page(page: 1, pageSize: 20);
+
+        // Fluent query execution on IMongoCollection<Customer>:
+        IFindFluent<Customer, Customer> findFluent = _mongoCollection.Find(querySpec);
+
+        return await findFluent.ToListAsync(ct);
+    }
+}
+```
+

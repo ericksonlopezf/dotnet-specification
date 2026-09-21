@@ -1,4 +1,4 @@
-﻿# Migrating from Ardalis.Specification to EricksonLopez.Specification
+# Migrating from Ardalis.Specification to EricksonLopez.Specification
 
 This guide maps every Ardalis concept to its EricksonLopez equivalent, and explains the architectural differences.
 
@@ -190,7 +190,7 @@ public sealed class EfCustomerRepository : IReadRepository<Customer>
 | EF Core IQueryable | ✅ | ✅ | Via .Apply() |
 | Include / ThenInclude | ✅ | ❌ (by design) | Move to repository |
 | Write repository | ✅ | ❌ (by design) | Implement yourself |
-| Roslyn analyzers | ❌ | ✅ (SPEC001–010) | Compile-time enforcement |
+| Roslyn analyzers | ❌ | ✅ (SPEC001–SPEC011) | Compile-time enforcement (SPEC011 detects Ardalis specs) |
 | Expression.Invoke-free | ✅ | ✅ | |
 | Immutable query descriptor | ❌ (mutable) | ✅ (sealed record) | Thread-safe caching |
 | Dynamic string ordering | ✅ | ❌ (by design) | Type-unsafe anti-pattern |

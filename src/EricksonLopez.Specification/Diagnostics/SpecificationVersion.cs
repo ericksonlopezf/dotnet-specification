@@ -2,8 +2,8 @@
 
 namespace EricksonLopez.Specification.Diagnostics;
 
-/// <summary>Contains the current library version for telemetry.</summary>
+/// <summary>Provides the current library version for telemetry.</summary>
 internal static class SpecificationVersion
 {
-    internal const string Current = "1.0.0";
+    internal const string Current = "2.0.0";
 }

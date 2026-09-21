@@ -1,10 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net10.0</TargetFramework>
+    <TargetFrameworks>net8.0;net9.0;net10.0</TargetFrameworks>
     <Nullable>enable</Nullable>
     <IsAotCompatible>true</IsAotCompatible>
-    <PackageTags>$(CommonPackageTags);result-pattern;railway-oriented-programming;functional-programming;error-handling;aot</PackageTags>
+    <PackageTags>$(CommonPackageTags);result-pattern;railway-oriented-programming;functional-programming;error-handling;repository-pattern;native-aot</PackageTags>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 
