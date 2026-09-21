@@ -11,6 +11,7 @@ This document defines the complete Continuous Integration and Continuous Deploym
 | **Main CI** | `ci.yml` | `push`, `pull_request` (`main`, `develop`) | Fast PR feedback: builds, tests, coverage, NativeAOT smoke test |
 | **Reusable Build & Test** | `dotnet-build-test.yml` | `workflow_call` | Build, test, coverage, SonarCloud |
 | **NativeAOT Smoke Test** | `aot-smoke-test.yml` | `push`/`PR`, `workflow_call`, `workflow_dispatch` | Compile and run a NativeAOT binary (`PublishAot=true`) |
+| **Benchmark Regression Gate** | `benchmark-regression-gate.yml` | `pull_request` (`src/**`, `benchmarks/**`), `workflow_dispatch` | Enforces zero-allocation & max 5% latency regression |
 | **Publish NuGet** | `publish.yml` | `push v*.*.*` tag, `workflow_dispatch` | Pack + sign + publish all packages to NuGet |
 | **Release Please** | `release-please.yml` | `push` → `main` | Automated release PR + dispatch publish |
 | **Mutation Testing** | `mutation-testing.yml` | Schedule Mon 04:00 UTC, `workflow_dispatch` | Stryker mutation analysis across all packages |

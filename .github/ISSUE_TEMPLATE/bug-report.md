@@ -27,6 +27,7 @@ A clear and concise description of what you expected to happen.
 - Package(s) affected:
   - [ ] `EricksonLopez.Specification` 1.0.0
   - [ ] `EricksonLopez.Specification.Abstractions`
+  - [ ] `EricksonLopez.Specification.Linq`
   - [ ] `EricksonLopez.Specification.Sql`
   - [ ] `EricksonLopez.Specification.PostgreSql`
   - [ ] `EricksonLopez.Specification.MsSql`
@@ -35,12 +36,14 @@ A clear and concise description of what you expected to happen.
   - [ ] `EricksonLopez.Specification.Sqlite`
   - [ ] `EricksonLopez.Specification.Oracle`
   - [ ] `EricksonLopez.Specification.Dapper`
+  - [ ] `EricksonLopez.Specification.DapperExtensions`
   - [ ] `EricksonLopez.Specification.EntityFrameworkCore`
   - [ ] `EricksonLopez.Specification.MongoDB`
+  - [ ] `EricksonLopez.Specification.Result`
   - [ ] `EricksonLopez.Specification.Analyzers`
   - [ ] `EricksonLopez.Specification.Generators`
   - [ ] Other: ___
-- Storage/Infrastructure: [e.g., PostgreSQL 16 via Dapper 2.1.66 / EF Core 9.0.2 / MongoDB 7]
+- Storage/Infrastructure: [e.g., PostgreSQL 16 via Dapper 2.1.79 / EF Core 9.0.2 / MongoDB 7]
 
 **Generated SQL (if applicable)**
 If the bug involves SQL generation, paste the generated SQL string and bound parameters here.

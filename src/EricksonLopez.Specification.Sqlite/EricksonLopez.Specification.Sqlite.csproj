@@ -5,7 +5,7 @@
     <RootNamespace>EricksonLopez.Specification.Sqlite</RootNamespace>
     <PackageId>EricksonLopez.Specification.Sqlite</PackageId>
     <Description>SQLite dialect for EricksonLopez.Specification. Translates QueryModel to SQLite-compatible SQL (LIMIT/OFFSET, IN expansion). Primarily used for integration testing without an external server.</Description>
-    <PackageTags>$(CommonPackageTags);sqlite;sql-dialect;embedded-database;aot</PackageTags>
+    <PackageTags>$(CommonPackageTags);sqlite;sql-dialect;embedded-database;rdbms;sql;native-aot</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>

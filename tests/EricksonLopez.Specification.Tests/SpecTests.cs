@@ -1,5 +1,6 @@
 // Copyright © Erickson Lopez. MIT License.
 using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using AwesomeAssertions;
 using Xunit;
@@ -319,6 +320,86 @@ public sealed class SpecTests
 
         composed.IsSatisfiedBy(new Customer { IsActive = true }).Should().BeTrue();
         composed.IsSatisfiedBy(new Customer { IsActive = false }).Should().BeFalse();
+    }
+
+    // ──────────────────────────────────────────────────────────────────────────
+    // IEnumerable<Specification<T>> Overloads
+    // ──────────────────────────────────────────────────────────────────────────
+
+    [Fact]
+    public void All_WithNullEnumerable_ThrowsArgumentNullException()
+    {
+        IEnumerable<Specification<Customer>> specs = null!;
+        var act = () => Spec.All(specs);
+        act.Should().Throw<ArgumentNullException>();
+    }
+
+    [Fact]
+    public void All_WithEmptyList_ReturnsAlwaysTrueSpecification()
+    {
+        var list = new System.Collections.Generic.List<Specification<Customer>>();
+        var spec = Spec.All(list);
+        spec.IsSatisfiedBy(new Customer()).Should().BeTrue();
+    }
+
+    [Fact]
+    public void All_WithSingleItemList_ReturnsOriginalSpecification()
+    {
+        var single = Spec.For<Customer>(c => c.IsActive);
+        var list = new System.Collections.Generic.List<Specification<Customer>> { single };
+        var spec = Spec.All(list);
+        spec.Should().BeSameAs(single);
+    }
+
+    [Fact]
+    public void All_WithMultipleItemList_ComposesWithAnd()
+    {
+        var spec1 = Spec.For<Customer>(c => c.IsActive);
+        var spec2 = Spec.For<Customer>(c => c.CreditLimit > 100m);
+        var list = new System.Collections.Generic.List<Specification<Customer>> { spec1, spec2 };
+
+        var composed = Spec.All(list);
+        composed.IsSatisfiedBy(new Customer { IsActive = true, CreditLimit = 200m }).Should().BeTrue();
+        composed.IsSatisfiedBy(new Customer { IsActive = true, CreditLimit = 50m }).Should().BeFalse();
+        composed.IsSatisfiedBy(new Customer { IsActive = false, CreditLimit = 200m }).Should().BeFalse();
+    }
+
+    [Fact]
+    public void Any_WithNullEnumerable_ThrowsArgumentNullException()
+    {
+        IEnumerable<Specification<Customer>> specs = null!;
+        var act = () => Spec.Any(specs);
+        act.Should().Throw<ArgumentNullException>();
+    }
+
+    [Fact]
+    public void Any_WithEmptyList_ReturnsAlwaysFalseSpecification()
+    {
+        var list = new System.Collections.Generic.List<Specification<Customer>>();
+        var spec = Spec.Any(list);
+        spec.IsSatisfiedBy(new Customer()).Should().BeFalse();
+    }
+
+    [Fact]
+    public void Any_WithSingleItemList_ReturnsOriginalSpecification()
+    {
+        var single = Spec.For<Customer>(c => c.IsActive);
+        var list = new System.Collections.Generic.List<Specification<Customer>> { single };
+        var spec = Spec.Any(list);
+        spec.Should().BeSameAs(single);
+    }
+
+    [Fact]
+    public void Any_WithMultipleItemList_ComposesWithOr()
+    {
+        var spec1 = Spec.For<Customer>(c => c.IsActive);
+        var spec2 = Spec.For<Customer>(c => c.CreditLimit > 1000m);
+        var list = new System.Collections.Generic.List<Specification<Customer>> { spec1, spec2 };
+
+        var composed = Spec.Any(list);
+        composed.IsSatisfiedBy(new Customer { IsActive = true, CreditLimit = 50m }).Should().BeTrue();
+        composed.IsSatisfiedBy(new Customer { IsActive = false, CreditLimit = 2000m }).Should().BeTrue();
+        composed.IsSatisfiedBy(new Customer { IsActive = false, CreditLimit = 50m }).Should().BeFalse();
     }
 }
 

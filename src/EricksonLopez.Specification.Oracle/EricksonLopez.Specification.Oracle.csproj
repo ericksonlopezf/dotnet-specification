@@ -5,7 +5,7 @@
     <RootNamespace>EricksonLopez.Specification.Oracle</RootNamespace>
     <PackageId>EricksonLopez.Specification.Oracle</PackageId>
     <Description>Oracle Database dialect for EricksonLopez.Specification. Translates QueryModel to Oracle-compatible SQL (OFFSET/FETCH, double quote quoting, :parameters, IN expansion).</Description>
-    <PackageTags>$(CommonPackageTags);oracle;oracle-db;plsql;sql-dialect;rdbms;aot</PackageTags>
+    <PackageTags>$(CommonPackageTags);oracle;oracle-db;plsql;sql-dialect;rdbms;sql;native-aot</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>

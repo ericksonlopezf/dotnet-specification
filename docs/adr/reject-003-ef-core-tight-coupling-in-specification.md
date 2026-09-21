@@ -1,4 +1,11 @@
 # Architectural Decision Record: reject-003
+
+## Status
+Rejected
+
+## Date
+2026-09-04
+
 ## Rejection of EF Core / IQueryable Tight Coupling in Specification Abstractions
 
 ### Status

@@ -1,5 +1,11 @@
 # adr-003: No Dynamic String-Based Ordering
 
+## Status
+Accepted
+
+## Date
+2026-08-12
+
 **Status**: Accepted  
 **Date**: 2026-08-12  
 **Deciders**: EricksonLopez.Specification architecture audit  

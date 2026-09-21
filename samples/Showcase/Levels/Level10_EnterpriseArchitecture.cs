@@ -11,8 +11,8 @@ using Microsoft.Extensions.Logging;
 namespace EricksonLopez.Specification.Showcase.Levels;
 
 // ─────────────────────────────────────────────────────────────────────────────
-// CAPA DE DOMINIO / APLICACIÓN
-// Contratos definidos en el core del dominio — sin dependencias de infraestructura.
+// DOMAIN / APPLICATION LAYER
+// Contracts defined in the domain core — without infrastructure dependencies.
 // ─────────────────────────────────────────────────────────────────────────────
 
 /// <summary>
@@ -58,8 +58,12 @@ public sealed class Level10_EnterpriseArchitecture : ILevel
         var listSpec = QuerySpec<Customer>.Empty
             .Where(c => c.IsActive)
             .Where(c => c.TotalPurchases > 10)
-            .OrderByDescending(c => c.TotalPurchases)
-            .Page(page: 1, pageSize: 5);
+            .OrderByDescending(c => c.TotalPurchases);
+
+        var dummyQueryable = new List<Customer>().AsQueryable();
+        var efQuery = EfSpecificationEvaluator.GetQuery(dummyQueryable, listSpec);
+        _logger.LogInformation("[EfSpecificationEvaluator.GetQuery] Generated query: {Q}", efQuery);
+        listSpec.Page(page: 1, pageSize: 5);
 
         var customers = await repo.ListAsync(listSpec);
         _logger.LogInformation("[ListAsync] Active VIP customers: {N}", customers.Count);

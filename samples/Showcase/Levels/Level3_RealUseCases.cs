@@ -140,6 +140,29 @@ public sealed class Level3_RealUseCases : ILevel
         foreach (var c in cursorResults)
             _logger.LogInformation("  - {Name}: {Purchases} purchases", c.Name, c.TotalPurchases);
 
+        // ─────────────────────────────────────────────────────────────────
+        // 7. IQueryable<T> Direct Specification Extensions (Where, All, FirstOrDefault)
+        // ─────────────────────────────────────────────────────────────────
+        var queryableWhere = customers.Where(activeSpec).ToList();
+        bool queryableAll = customers.All(activeSpec);
+        var queryableFirst = customers.FirstOrDefault(vipSpec);
+
+        _logger.LogInformation("[IQueryable Extensions] Where: {W} items | All active: {A} | FirstOrDefault VIP: {F}",
+            queryableWhere.Count, queryableAll, queryableFirst?.Name ?? "None");
+
+        // ─────────────────────────────────────────────────────────────────
+        // 8. IEnumerable<T> In-Memory Specification Extensions (Where, Any, All, Count, FirstOrDefault)
+        // ─────────────────────────────────────────────────────────────────
+        var inMemoryList = customers.ToList();
+        var memWhere = inMemoryList.Where(activeSpec).ToList();
+        bool memAny = inMemoryList.Any(vipSpec);
+        bool memAll = inMemoryList.All(activeSpec);
+        int memCount = inMemoryList.Count(activeSpec);
+        var memFirst = inMemoryList.FirstOrDefault(vipSpec);
+
+        _logger.LogInformation("[IEnumerable Extensions] Where: {W} | Any: {A} | All: {All} | Count: {C} | First: {F}",
+            memWhere.Count, memAny, memAll, memCount, memFirst?.Name ?? "None");
+
         return Task.CompletedTask;
     }
 }

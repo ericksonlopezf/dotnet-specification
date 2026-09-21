@@ -1,5 +1,11 @@
 # adr-008: Expression Trees as Internal Representation
 
+## Status
+Accepted
+
+## Date
+2026-08-13
+
 **Status**: Accepted
 **Date**: 2026-08-13
 

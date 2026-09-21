@@ -6,11 +6,11 @@ Only the current major release line is actively supported with security updates.
 
 | Version | Supported | Notes |
 |---------|-----------|-------|
-| 1.0.x   | ✅        | Current active development (pre-release; not yet published to NuGet.org) |
+| 2.0.x   | ✅        | Current active stable release line (`VersionPrefix=2.0.0` in `Directory.Build.props`) |
+| 1.0.x   | ⚠️        | Prior release line; critical security patches only |
 | < 1.0   | ❌        | Pre-release iterations are not supported |
 
-> **Note**: No NuGet packages have been published yet. `v1.0.0` is the planned initial release
-> (`VersionPrefix=1.0.0` in `Directory.Build.props`, tracked by `.release-please-manifest.json`).
+> **Note**: `v2.0.0` is the active release line (released 2026-09-21). Automated releases and patch versioning are managed via Release Please (`.release-please-manifest.json`).
 
 ---
 
@@ -29,11 +29,11 @@ Please **do not** disclose security-related issues publicly until a fix has been
 
 ## Supply Chain Security
 
-The following supply chain security mechanisms are configured and ready for the first NuGet publish event:
+The following supply chain security mechanisms are configured and active:
 
 | Mechanism | Status | Source |
 |-----------|--------|--------|
-| Strong Name Signing | ✅ Configured | `publish.yml` — `SNK_KEY` secret, base64 key decoded at publish time |
+| Strong Name Signing | ✅ Configured | `publish.yml` / `Directory.Build.props` — `EricksonLopez.snk` signing key, with ephemeral CI decoding from `SNK_KEY` |
 | NuGet Trusted Publishing (OIDC) | ✅ Configured | `publish.yml` — `NuGet/login@v1` action, no static API key required |
 | Sigstore Provenance Attestation | ✅ Configured | `publish.yml` — `actions/attest-build-provenance@v2` on all `.nupkg` files |
 | Central Package Management (CPM) | ✅ Active | All versions pinned in `Directory.Packages.props` |
@@ -42,7 +42,7 @@ The following supply chain security mechanisms are configured and ready for the 
 
 ### Strong Name Key Recovery
 
-The `.snk` assembly signing key is stored exclusively as a GitHub Actions secret (`SNK_KEY`) encoded in base64. It is decoded at publish time only and never committed to the repository. The file `EricksonLopez.Specification.snk` is regenerated ephemerally during the publish job.
+Assembly signing is enforced across all shipping assemblies via `Directory.Build.props`. In local development, the assembly is signed using `EricksonLopez.snk`. In GitHub Actions CI/CD pipelines, the key is securely restored from the repository secret `SNK_KEY` (base64-encoded) to guarantee build authenticity and prevent key tampering.
 
 ### NuGet Trusted Publishing (OIDC)
 
@@ -66,11 +66,11 @@ Key runtime dependencies:
 
 | Package | Pinned Version |
 |---------|---------------|
-| `Dapper` | 2.1.66 |
+| `Dapper` | 2.1.79 |
 | `Dapper.AOT` | 1.0.52 |
-| `Npgsql` | 9.0.3 |
+| `Npgsql` | 10.0.3 |
 | `Microsoft.EntityFrameworkCore` | 9.0.2 |
-| `MongoDB.Driver` | 3.10.0 |
+| `MongoDB.Driver` | 3.11.1 |
 | `OpenTelemetry.Api` | 1.10.0 |
 
 ---

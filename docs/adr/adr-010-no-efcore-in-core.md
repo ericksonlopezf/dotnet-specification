@@ -1,5 +1,11 @@
 # adr-010: No EF Core Dependency in Core Packages
 
+## Status
+Accepted
+
+## Date
+2026-08-13
+
 **Status**: Accepted
 **Date**: 2026-08-13
 

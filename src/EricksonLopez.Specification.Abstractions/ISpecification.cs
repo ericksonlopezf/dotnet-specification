@@ -21,7 +21,7 @@ public interface ISpecification<
     /// </summary>
     /// <param name="candidate">The candidate to evaluate.</param>
     /// <returns><see langword="true"/> if the candidate satisfies the specification; otherwise, <see langword="false"/>.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="candidate"/> is <see langword="null"/>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="candidate"/> is <see langword="null"/></exception>
     bool IsSatisfiedBy(T candidate);
 }
 

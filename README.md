@@ -39,13 +39,13 @@ High-performance, composable, NativeAOT-first Specification Pattern and SQL AST 
   - [Use Case 3: Keyset / Cursor Pagination on High-Volume Datasets](#use-case-3-keyset--cursor-pagination-on-high-volume-datasets)
   - [Use Case 4: NativeAOT Microservices with Interpreted Validation](#use-case-4-nativeaot-microservices-with-interpreted-validation)
   - [Use Case 5: Multi-Dialect SQL Generation for Dapper & Raw ADO.NET](#use-case-5-multi-dialect-sql-generation-for-dapper--raw-adonet)
-  - [Use Case 6: Functional Result Queries with `EricksonLopez.Result`](#use-case-6-functional-result-queries-with-ericksonlopezresult)
+  - [Use Case 6: Functional Result Queries with EricksonLopez.Result](#use-case-6-functional-result-queries-with-ericksonlopezresult)
 - [Configuration & Integrations](#-configuration--integrations)
   - [Entity Framework Core & Dependency Injection](#entity-framework-core--dependency-injection)
   - [Dapper & Dialect Configuration](#dapper--dialect-configuration)
   - [MongoDB Driver Integration](#mongodb-driver-integration)
   - [OpenTelemetry Metrics & Diagnostics](#opentelemetry-metrics--diagnostics)
-  - [Compile-Time Roslyn Analyzers (`SPEC001`–`SPEC011`)](#compile-time-roslyn-analyzers-spec001spec011)
+  - [Compile-Time Roslyn Analyzers (SPEC001-SPEC011)](#compile-time-roslyn-analyzers-spec001-spec011)
 - [Testing & Quality](#-testing--quality)
   - [In-Memory Unit Testing](#in-memory-unit-testing)
   - [SQL Translation Snapshot Verification](#sql-translation-snapshot-verification)
@@ -54,8 +54,8 @@ High-performance, composable, NativeAOT-first Specification Pattern and SQL AST 
   - [Primary Operations & Composition](#primary-operations--composition)
   - [In-Memory Evaluation Benchmark (AOT vs JIT)](#in-memory-evaluation-benchmark-aot-vs-jit)
   - [SQL AST Translation Benchmark](#sql-ast-translation-benchmark)
-  - [LINQ Provider Overhead (`QuerySpec.Apply`)](#linq-provider-overhead-queryspecapply)
-  - [Span-Based Bulk Predicate Composition (`AndAll`)](#span-based-bulk-predicate-composition-andall)
+  - [LINQ Provider Overhead (QuerySpec.Apply)](#linq-provider-overhead-queryspecapply)
+  - [Span-Based Bulk Predicate Composition (AndAll)](#span-based-bulk-predicate-composition-andall)
 - [Compatibility & Technical Matrix](#-compatibility--technical-matrix)
   - [Runtime & Target Framework Matrix](#runtime--target-framework-matrix)
   - [SQL Dialects Feature Matrix](#sql-dialects-feature-matrix)
@@ -79,7 +79,7 @@ High-performance, composable, NativeAOT-first Specification Pattern and SQL AST 
 3. **Lack of Provider-Agnostic SQL Generation for Micro-ORMs**: Developers wanting high performance with Dapper or raw ADO.NET are forced to manually write string-based SQL queries, discarding domain specifications and introducing SQL injection vulnerabilities and maintainability nightmares.
 4. **Mutable State & `Expression.Invoke` Provider Failures**: Combining expressions using `Expression.Invoke` breaks query translation in EF Core, Cosmos DB, and LINQ providers, requiring fragile third-party extensions like LinqKit that fail NativeAOT trimming.
 
-### How `EricksonLopez.Specification` Solves This
+### How EricksonLopez.Specification Solves This
 
 - **Dual-Engine Architecture (100% NativeAOT Safe)**: Features a dedicated `ExpressionInterpreter` that evaluates expression ASTs in memory in just **44.6 nanoseconds** without emitting dynamic IL, while preserving an opt-in structural JIT cache (`ExpressionCompilationCache`) for standard runtimes.
 - **Strict DDD Layer Separation**: Domain specifications (`Specification<T>`) are strictly pure predicate expressions. Query concerns (sorting, keyset pagination, projection, tracking hints) are isolated in the Application layer via immutable value descriptors (`QuerySpec<T>`).
@@ -94,7 +94,7 @@ High-performance, composable, NativeAOT-first Specification Pattern and SQL AST 
 - 🚀 **NativeAOT & Trimming First**: Fully verified under .NET 8, 9, and 10 NativeAOT compilers with explicit BCL linker attributes and zero dynamic IL emission on hot paths.
 - 🗄️ **Multi-Dialect SQL Generation**: Native parameterized AST rendering for PostgreSQL, SQL Server (`MsSql`), MySQL, MariaDB, SQLite, and Oracle Database without ORM dependencies.
 - 🧱 **Strict DDD Clean Architecture**: Pure domain rules in `Specification<T>`, immutable query descriptors in `QuerySpec<T>`, and repository adapters in Infrastructure.
-- ⚡ **Zero Allocations on Hot Paths**: Bounded LRU query plan caching (`QueryPlanCache`), structural expression hashing (`ExpressionHasher`), and `ReadOnlySpan<T>` bulk composition (`AndAll` / `OrAny`).
+- ⚡ **Low Allocations & Bounded Memory**: Bounded LRU query plan caching (`QueryPlanCache`), structural expression hashing (`ExpressionHasher`), and `ReadOnlySpan<T>` bulk composition (`AndAll` / `OrAny`).
 - 🔍 **Keyset & Offset Pagination**: First-class support for both high-throughput deterministic keyset seek (`SeekAfter` / `SeekBefore`) and classic offset pagination (`Page` / `Skip` / `Take`).
 - 🛡️ **Compile-Time Roslyn Governance**: 11 analyzers (`SPEC001`–`SPEC011`) with automated CodeFix providers to prevent architectural drift and maintain strict domain purity.
 - 📊 **Enterprise Observability**: Integrated OpenTelemetry `ActivitySource` and `Meter` instruments tracking specification evaluations, compositions, and SQL translations.
@@ -137,17 +137,17 @@ Explore progressive runnable showcase levels located in the test and sample harn
 
 | Level | Topic | Description |
 |---|---|---|
-| [**Level 00**](https://github.com/ericksonlopezf/dotnet-specification/blob/main/samples/Showcase/Levels/Level0_Conceptual.cs) | **Architecture & Conceptual Foundations** | Pure DDD specification principles, expression tree encapsulation, and boundary invariants |
-| [**Level 01**](https://github.com/ericksonlopezf/dotnet-specification/blob/main/samples/Showcase/Levels/Level1_QuickStart.cs) | **Quick Start & Domain Primitives** | Sealed specifications, `Spec.For<T>`, `Spec.True<T>`, and in-memory AOT evaluation |
-| [**Level 02**](https://github.com/ericksonlopezf/dotnet-specification/blob/main/samples/Showcase/Levels/Level2_Configuration.cs) | **Configuration & SQL Dialects** | Configuring PostgreSQL, SQL Server, MySQL, SQLite, and Oracle AST translators |
-| [**Level 03**](https://github.com/ericksonlopezf/dotnet-specification/blob/main/samples/Showcase/Levels/Level3_RealUseCases.cs) | **Real-World Enterprise Use Cases** | CQRS queries, compound domain rules, multi-condition validation, and business pipelines |
-| [**Level 04**](https://github.com/ericksonlopezf/dotnet-specification/blob/main/samples/Showcase/Levels/Level4_AdvancedIntegration.cs) | **Advanced ORM & Database Integrations** | EF Core `IQueryable.Apply`, Dapper parameterized execution, and keyset seek pagination |
-| [**Level 05**](https://github.com/ericksonlopezf/dotnet-specification/blob/main/samples/Showcase/Levels/Level5_Processing.cs) | **Processing & AST Translation Pipeline** | Expression AST visitor rewriting, parameter replacement, and boolean constant folding |
-| [**Level 06**](https://github.com/ericksonlopezf/dotnet-specification/blob/main/samples/Showcase/Levels/Level6_ErrorHandling.cs) | **Error Handling & Invariant Enforcement** | Null safety, un-translatable expression handling, and Roslyn diagnostic enforcement |
-| [**Level 07**](https://github.com/ericksonlopezf/dotnet-specification/blob/main/samples/Showcase/Levels/Level7_Scalability.cs) | **Scalability & Bounded LRU Caching** | High-throughput query plan caching (`QueryPlanCache`) and structural expression hashing |
-| [**Level 08**](https://github.com/ericksonlopezf/dotnet-specification/blob/main/samples/Showcase/Levels/Level8_Customization.cs) | **Customization & Custom Column Resolvers** | Custom `IColumnNameResolver` strategies and source-generated `[SpecColumnResolver]` |
-| [**Level 09**](https://github.com/ericksonlopezf/dotnet-specification/blob/main/samples/Showcase/Levels/Level9_Extensions.cs) | **Ecosystem Extensions (Result & MongoDB)** | Railway-oriented `Result<T>` query integration and MongoDB Filter/Sort compilation |
-| [**Level 10**](https://github.com/ericksonlopezf/dotnet-specification/blob/main/samples/Showcase/Levels/Level10_EnterpriseArchitecture.cs) | **Enterprise Architecture & Domain Isolation** | Strict Clean Architecture layer isolation, dependency rule enforcement, and microservice patterns |
+| [**Level 00**](https://github.com/ericksonlopezf/dotnet-specification/blob/main/docs/showcase/level-00-introduction.md) | **Architecture & Conceptual Foundations** | Pure DDD specification principles, expression tree encapsulation, and boundary invariants ([Source](https://github.com/ericksonlopezf/dotnet-specification/blob/main/samples/Showcase/Levels/Level0_Conceptual.cs)) |
+| [**Level 01**](https://github.com/ericksonlopezf/dotnet-specification/blob/main/docs/showcase/level-01-specification-composition.md) | **Quick Start & Domain Primitives** | Sealed specifications, `Spec.For<T>`, `Spec.True<T>`, and in-memory AOT evaluation ([Source](https://github.com/ericksonlopezf/dotnet-specification/blob/main/samples/Showcase/Levels/Level1_QuickStart.cs)) |
+| [**Level 02**](https://github.com/ericksonlopezf/dotnet-specification/blob/main/docs/showcase/level-02-expression-compilation-and-evaluators.md) | **Configuration & SQL Dialects** | Configuring PostgreSQL, SQL Server, MySQL, SQLite, and Oracle AST translators ([Source](https://github.com/ericksonlopezf/dotnet-specification/blob/main/samples/Showcase/Levels/Level2_Configuration.cs)) |
+| [**Level 03**](https://github.com/ericksonlopezf/dotnet-specification/blob/main/docs/showcase/level-03-zero-allocation-aot.md) | **Real-World Enterprise Use Cases** | CQRS queries, compound domain rules, multi-condition validation, and business pipelines ([Source](https://github.com/ericksonlopezf/dotnet-specification/blob/main/samples/Showcase/Levels/Level3_RealUseCases.cs)) |
+| [**Level 04**](https://github.com/ericksonlopezf/dotnet-specification/blob/main/docs/showcase/level-04-advanced-integration.md) | **Advanced ORM & Database Integrations** | EF Core `IQueryable.Apply`, Dapper parameterized execution, and keyset seek pagination ([Source](https://github.com/ericksonlopezf/dotnet-specification/blob/main/samples/Showcase/Levels/Level4_AdvancedIntegration.cs)) |
+| [**Level 05**](https://github.com/ericksonlopezf/dotnet-specification/blob/main/docs/showcase/level-05-processing.md) | **Processing & AST Translation Pipeline** | Expression AST visitor rewriting, parameter replacement, and boolean constant folding ([Source](https://github.com/ericksonlopezf/dotnet-specification/blob/main/samples/Showcase/Levels/Level5_Processing.cs)) |
+| [**Level 06**](https://github.com/ericksonlopezf/dotnet-specification/blob/main/docs/showcase/level-06-error-handling.md) | **Error Handling & Invariant Enforcement** | Null safety, un-translatable expression handling, and Roslyn diagnostic enforcement ([Source](https://github.com/ericksonlopezf/dotnet-specification/blob/main/samples/Showcase/Levels/Level6_ErrorHandling.cs)) |
+| [**Level 07**](https://github.com/ericksonlopezf/dotnet-specification/blob/main/docs/showcase/level-07-scalability.md) | **Scalability & Bounded LRU Caching** | High-throughput query plan caching (`QueryPlanCache`) and structural expression hashing ([Source](https://github.com/ericksonlopezf/dotnet-specification/blob/main/samples/Showcase/Levels/Level7_Scalability.cs)) |
+| [**Level 08**](https://github.com/ericksonlopezf/dotnet-specification/blob/main/docs/showcase/level-08-customization.md) | **Customization & Custom Column Resolvers** | Custom `IColumnNameResolver` strategies and source-generated `[SpecColumnResolver]` ([Source](https://github.com/ericksonlopezf/dotnet-specification/blob/main/samples/Showcase/Levels/Level8_Customization.cs)) |
+| [**Level 09**](https://github.com/ericksonlopezf/dotnet-specification/blob/main/docs/showcase/level-09-official-extensions.md) | **Ecosystem Extensions (Result & MongoDB)** | Railway-oriented `Result<T>` query integration and MongoDB Filter/Sort compilation ([Source](https://github.com/ericksonlopezf/dotnet-specification/blob/main/samples/Showcase/Levels/Level9_Extensions.cs)) |
+| [**Level 10**](https://github.com/ericksonlopezf/dotnet-specification/blob/main/docs/showcase/level-10-enterprise-architecture.md) | **Enterprise Architecture & Domain Isolation** | Strict Clean Architecture layer isolation, dependency rule enforcement, and microservice patterns ([Source](https://github.com/ericksonlopezf/dotnet-specification/blob/main/samples/Showcase/Levels/Level10_EnterpriseArchitecture.cs)) |
 
 ### 📖 Technical Reference & Architecture Guides
 
@@ -156,7 +156,7 @@ Explore progressive runnable showcase levels located in the test and sample harn
 - [**Features & Technical Matrix**](https://github.com/ericksonlopezf/dotnet-specification/blob/main/docs/features.md) — Detailed feature classification, tier boundaries, and verified competitor comparisons.
 - [**NativeAOT & Trimming Guide**](https://github.com/ericksonlopezf/dotnet-specification/blob/main/docs/aot.md) — Linker attributes, AST interpreter node support, and zero-dynamic-code deployment rules.
 - [**Verified Performance Benchmarks**](https://github.com/ericksonlopezf/dotnet-specification/blob/main/docs/benchmarks.md) — BenchmarkDotNet suite results across expression composition, in-memory validation, and SQL translation.
-- [**Enterprise Cookbook & Recipes**](https://github.com/ericksonlopezf/dotnet-specification/blob/main/docs/cookbook.md) — 27 production-ready copy-paste recipes for DDD, EF Core, Dapper, NativeAOT, and OpenTelemetry.
+- [**Enterprise Cookbook & Recipes**](https://github.com/ericksonlopezf/dotnet-specification/blob/main/docs/cookbook.md) — 29 production-ready copy-paste recipes for DDD, EF Core, Dapper, NativeAOT, and OpenTelemetry.
 - [**Best Practices & Anti-Patterns**](https://github.com/ericksonlopezf/dotnet-specification/blob/main/docs/best-practices.md) — Architectural rules, coding guidelines, and analyzer diagnostic compliance.
 - [**Competitive Audit & Matrix**](https://github.com/ericksonlopezf/dotnet-specification/blob/main/docs/competitive-matrix.md) — In-depth technical comparison against Ardalis.Specification, LinqKit, and native EF Core.
 - [**Migration from Ardalis.Specification**](https://github.com/ericksonlopezf/dotnet-specification/blob/main/docs/migration-from-ardalis.md) — Step-by-step guide and Roslyn automated code fixes for legacy migrations.
@@ -448,7 +448,7 @@ var mySqlQuery = MySqlDialect.Default.Render(translator.Translate(spec));
 var oracleQuery = OracleDialect.Default.Render(translator.Translate(spec));
 ```
 
-### Use Case 6: Functional Result Queries with `EricksonLopez.Result`
+### Use Case 6: Functional Result Queries with EricksonLopez.Result
 
 Integrate Railway-Oriented Programming for resilient, exception-free repository queries:
 
@@ -531,8 +531,8 @@ SortDefinition<CustomerDoc> sort = MongoSortCompiler.Compile(querySpec);
 var results = await mongoCollection
     .Find(filter)
     .Sort(sort)
-    .Skip(querySpec.Pagination?.Skip)
-    .Limit(querySpec.Pagination?.Take)
+    .Skip(querySpec.SkipCount ?? 0)
+    .Limit(querySpec.TakeCount ?? 0)
     .ToListAsync(cancellationToken);
 ```
 
@@ -549,12 +549,17 @@ var meterProvider = Sdk.CreateMeterProviderBuilder()
     .Build();
 
 // Automatically recorded metrics:
-// - specification.evaluations_total (Counter)
-// - specification.compositions_total (Counter)
-// - specification.sql_translations_total (Counter)
+// - specification.created (Counter<long>)          — Specification instances created
+// - specification.evaluated (Counter<long>)         — IsSatisfiedBy() evaluations
+// - specification.composed (Counter<long>)          — And/Or/Not composition operations
+// - specification.compiled (Counter<long>)          — ToCompiledPredicate() JIT compilations
+// - specification.expression.cache.hits (Counter<long>)   — ExpressionCompilationCache hits
+// - specification.expression.cache.misses (Counter<long>) — ExpressionCompilationCache misses
+// - specification.sql.translations (Counter<long>)  — SQL AST translation operations
+// - specification.sql.translation.duration (Histogram<double>, ms) — SQL translation latency
 ```
 
-### Compile-Time Roslyn Analyzers (`SPEC001`–`SPEC011`)
+### Compile-Time Roslyn Analyzers (SPEC001-SPEC011)
 
 The library includes 11 automated analyzers to enforce architectural purity and prevent misuse during compilation:
 
@@ -567,7 +572,7 @@ The library includes 11 automated analyzers to enforce architectural purity and 
 | **`SPEC005`** | **Info** | Correctness | Ordering clause applied without pagination limits. | ❌ No |
 | **`SPEC006`** | **Info** | Layering | Domain specification declared outside Domain layer boundary. | ❌ No |
 | **`SPEC007`** | **Warning** | SQL Translation | Non-translatable method invocation inside `BuildExpression`. | ❌ No |
-| **`SPEC008`** | **Error** | Purity | Prohibits infrastructure dependencies (`DbContext`, `IServiceProvider`) in constructors. | ❌ No |
+| **`SPEC008`** | **Warning** | Purity | Prohibits infrastructure dependencies (`DbContext`, `IServiceProvider`) in constructors. | ❌ No |
 | **`SPEC009`** | **Error** | Correctness | Disallows `async` lambdas inside `BuildExpression`. | ❌ No |
 | **`SPEC010`** | **Error** | Correctness | Disallows calling `IsSatisfiedBy` inside `BuildExpression`. | ❌ No |
 | **`SPEC011`** | **Warning** | Migration | Flags inheritance from legacy `Ardalis.Specification` base class. | ✅ Yes |
@@ -659,7 +664,7 @@ Every release undergoes exhaustive mutation testing via **Stryker.NET** to ensur
 
 ### Primary Operations & Composition
 
-Compairing combining predicates (`c => c.IsActive` and `c => !c.IsDeleted`) via `ExpressionComposer.And` versus manual dynamic lambda construction:
+Comparing combining predicates (`c => c.IsActive` and `c => !c.IsDeleted`) via `ExpressionComposer.And` versus manual dynamic lambda construction:
 
 | Method | Mean | Ratio | Gen0 | Allocated | Alloc Ratio |
 |---|---:|---:|---:|---:|---:|
@@ -682,6 +687,8 @@ Evaluates a composite specification (`ActiveCustomerSpec.And(NotDeletedSpec)`) a
 | **EricksonLopez: `IsSatisfiedBy` (Compiled Cache)** | **64.60 ns** | **64.49 ns** | 0.0010 | **48 B** | JIT Cached Structural Delegate |
 
 > **Key Takeaway**: In-memory interpreted evaluation executes in just **44.6 nanoseconds**, enabling sub-microsecond validation on NativeAOT without dynamic code generation.
+>
+> ℹ️ **Allocation Profile Note**: Expression composition (`And`, `Or`, `Not`) and compiled delegate execution are zero-allocation or bounded to minimal delegate invocation frames (48 B). Interpreted in-memory evaluation allocates 96 B for transient reflection stack frames, maintaining complete safety on Native AOT without emitting runtime IL.
 
 ---
 
@@ -696,7 +703,7 @@ Measures translating a `QuerySpec<T>` into a parameterized SQL string and parame
 
 ---
 
-### LINQ Provider Overhead (`QuerySpec.Apply`)
+### LINQ Provider Overhead (QuerySpec.Apply)
 
 Measures applying a `QuerySpec<T>` with filtering, sorting, and paging against an `IQueryable<T>` data source of 1,000 entities:
 
@@ -707,7 +714,7 @@ Measures applying a `QuerySpec<T>` with filtering, sorting, and paging against a
 
 ---
 
-### Span-Based Bulk Predicate Composition (`AndAll`)
+### Span-Based Bulk Predicate Composition (AndAll)
 
 Bulk composition of 5 predicates using `ReadOnlySpan<T>` versus chained `.And()` invocations:
 
@@ -751,6 +758,9 @@ Bulk composition of 5 predicates using `ReadOnlySpan<T>` versus chained `.And()`
 | **Oracle** | `"COLUMN"` | `:p1, :p2, ...` | `OFFSET m ROWS FETCH NEXT n ROWS ONLY` | `LIKE` | `IN (:p1, :p2)` |
 
 ---
+
+> [!NOTE]
+> **Target Framework & Lifecycle Policy**: First-class multi-targeting across `.NET 10` (Modern LTS), `.NET 9` (STS), and `.NET 8` (Enterprise LTS) — along with `.NET Standard 2.0` for Roslyn analyzers and source generators — is actively maintained. Full backward compatibility is guaranteed until Microsoft officially reaches End-of-Life (EOL) for .NET 8 and .NET 9 in November 2026, at which milestone the ecosystem will transition to .NET 10 and .NET 11.
 
 ## 🏛️ Architecture & Design Principles
 

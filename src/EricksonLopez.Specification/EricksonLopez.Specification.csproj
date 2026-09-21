@@ -5,7 +5,7 @@
     <RootNamespace>EricksonLopez.Specification</RootNamespace>
     <PackageId>EricksonLopez.Specification</PackageId>
     <Description>Core Specification Pattern implementation for .NET 10+. AOT-first, allocation-conscious, DDD-compatible. Includes expression engine, composition, simplification, and structural hashing.</Description>
-    <PackageTags>$(CommonPackageTags);expression-tree;expression;composition;boolean-algebra;interpreter;aot;native-aot;high-performance</PackageTags>
+    <PackageTags>$(CommonPackageTags);expression-tree;composition;boolean-algebra;interpreter;predicate;query-specification;native-aot;trimming</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>

@@ -1,5 +1,11 @@
 # adr-015: No GroupBy / Aggregation / SelectMany in Specifications
 
+## Status
+Accepted
+
+## Date
+2026-08-13
+
 **Status**: Accepted  
 **Date**: 2026-08-13  
 **Deciders**: Erickson Lopez

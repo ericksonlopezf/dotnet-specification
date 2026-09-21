@@ -18,6 +18,7 @@
     <Project Path="src/EricksonLopez.Specification.Sql/EricksonLopez.Specification.Sql.csproj" />
     <Project Path="src/EricksonLopez.Specification.Sqlite/EricksonLopez.Specification.Sqlite.csproj" />
     <Project Path="src/EricksonLopez.Specification.MongoDB/EricksonLopez.Specification.MongoDB.csproj" />
+    <Project Path="src/EricksonLopez.Specification.Result/EricksonLopez.Specification.Result.csproj" />
     <Project Path="src/EricksonLopez.Specification/EricksonLopez.Specification.csproj" />
   </Folder>
   <Folder Name="/tests/">

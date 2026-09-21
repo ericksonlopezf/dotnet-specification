@@ -2,7 +2,10 @@
 
 ## From `Ardalis.Specification` to `EricksonLopez.Specification`
 
-If you were using traditional libraries purely focused on Entity Framework Core, the transition will require re-thinking the architectural purpose of your rules.
+> [!TIP]
+> For an exhaustive, step-by-step migration blueprint covering repositories, ordering, and feature-by-feature comparisons, see [Migrating from Ardalis.Specification](migration-from-ardalis.md). Additionally, the `EricksonLopez.Specification.Analyzers` package includes diagnostic rule **`SPEC011`** which automatically flags legacy Ardalis specifications and offers automated CodeFix refactoring in your IDE.
+
+If you were using traditional libraries purely focused on Entity Framework Core, the transition will require re-thinking the architectural purpose of your rules:
 
 ### 1. Replacing `ISpecification<T>` (Ardalis)
 In Ardalis, the Specification mixed pure conditional rules (`Where`), along with Infrastructure logic (`Includes`, `AsNoTracking`, `OrderBy`).

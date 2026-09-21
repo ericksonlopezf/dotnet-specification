@@ -1,5 +1,11 @@
 # adr-011: No Runtime Reflection-Based Dynamic Queries
 
+## Status
+Rejected
+
+## Date
+2026-08-13
+
 **Status**: Accepted
 **Date**: 2026-08-13
 

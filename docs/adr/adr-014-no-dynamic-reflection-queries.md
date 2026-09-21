@@ -1,5 +1,11 @@
 # adr-014: No Dynamic Reflection / Runtime-String Queries
 
+## Status
+Accepted
+
+## Date
+2026-08-13
+
 **Status**: Accepted  
 **Date**: 2026-08-13  
 **Deciders**: Erickson Lopez

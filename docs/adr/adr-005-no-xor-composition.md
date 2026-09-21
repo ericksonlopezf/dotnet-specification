@@ -1,5 +1,11 @@
 # adr-005: No XOR Composition or Additional Boolean Operators
 
+## Status
+Accepted
+
+## Date
+2026-08-12
+
 **Status**: Accepted  
 **Date**: 2026-08-12  
 **Deciders**: EricksonLopez.Specification architecture audit  

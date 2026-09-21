@@ -12,6 +12,18 @@ This document provides a comprehensive technical inventory of the public API sur
   - `Expression<Func<T, bool>> ToExpression();`
   - `bool IsSatisfiedBy(T entity);`
 
+### `IExpressionSpecification<T>`
+- **Contract**: Specification convertible to an expression tree for query providers (inherits `ISpecification<T>`).
+- **Signatures**:
+  - `Expression<Func<T, bool>> ToExpression();`
+  - `string ToDebugString();` — delegates to `ExpressionDebugFormatterRegistry`
+
+### `ExpressionDebugFormatterRegistry`
+- **Contract**: Cross-layer registry for expression debug formatting.
+- **Properties & Methods**:
+  - `public static Func<Expression, string> Formatter { get; set; }`
+  - `public static string Format(Expression expression)`
+
 ### `QuerySpec<T>` and `QuerySpec<T, TResult>`
 - **Contract**: Immutable record representing a full query intent (filters, ordering, pagination, cursor).
 - **Core Factory**: `QuerySpec<T>.Empty`
@@ -157,7 +169,13 @@ All dialects implement `ISqlDialect` and provide `Default` singleton instances:
 - `ReadRepositoryDapperExtensions` — executes specifications over internal `IUnitOfWork` sessions.
 
 ### `EricksonLopez.Specification.Result`
-- `ListResultAsync<T>()`, `FirstOrDefaultResultAsync<T>()` — executes specifications returning functional `Result<T>` envelopes.
+- `ReadRepositoryResultExtensions` — extension methods over `IReadRepository<T>` returning functional `Result<T>` envelopes from `EricksonLopez.Result`:
+  - `Task<Result<T>> FirstOrDefaultResultAsync<T>(this IReadRepository<T>, QuerySpec<T>, CancellationToken)` — maps null to `NotFound` error
+  - `Task<Result<T>> SingleOrDefaultResultAsync<T>(this IReadRepository<T>, QuerySpec<T>, CancellationToken)`
+  - `Task<Result<IReadOnlyList<T>>> ListResultAsync<T>(this IReadRepository<T>, QuerySpec<T>, CancellationToken)`
+  - `Task<Result<IReadOnlyList<TResult>>> ListResultAsync<T, TResult>(this IReadRepository<T>, QuerySpec<T, TResult>, CancellationToken)`
+  - `Task<Result<int>> CountResultAsync<T>(this IReadRepository<T>, QuerySpec<T>, CancellationToken)`
+  - `Task<Result<bool>> AnyResultAsync<T>(this IReadRepository<T>, QuerySpec<T>, CancellationToken)`
 
 ---
 

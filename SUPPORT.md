@@ -30,7 +30,7 @@ Before opening an issue, please check the existing documentation:
 
 ## When Filing a Bug Report
 
-Please use the [Bug Report template](.github/ISSUE_TEMPLATE/bug_report.md) and include:
+Please use the [Bug Report template](.github/ISSUE_TEMPLATE/bug-report.md) and include:
 
 - **Library version** (NuGet package version or commit SHA)
 - **Target framework** (e.g., `net10.0`)

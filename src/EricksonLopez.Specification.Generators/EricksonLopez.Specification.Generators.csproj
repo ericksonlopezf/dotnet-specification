@@ -5,11 +5,11 @@
     <RootNamespace>EricksonLopez.Specification.Generators</RootNamespace>
     <PackageId>EricksonLopez.Specification.Generators</PackageId>
     <Description>Roslyn source generators for EricksonLopez.Specification. Provides [Spec] attribute for strongly-typed ordering and AOT-safe expression metadata.</Description>
-    <PackageTags>$(CommonPackageTags);roslyn;source-generator;code-generation;metaprogramming;developer-tools</PackageTags>
+    <PackageTags>$(CommonPackageTags);roslyn;source-generator;incremental-generator;code-generation;compile-time;metaprogramming;developer-tools</PackageTags>
     <TargetFramework>netstandard2.0</TargetFramework>
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
+    <ImplicitUsings>disable</ImplicitUsings>
     <IsAotCompatible>false</IsAotCompatible>
     <EnableTrimAnalyzer>false</EnableTrimAnalyzer>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>

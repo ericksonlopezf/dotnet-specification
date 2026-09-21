@@ -5,11 +5,11 @@
     <RootNamespace>EricksonLopez.Specification.Analyzers</RootNamespace>
     <PackageId>EricksonLopez.Specification.Analyzers</PackageId>
     <Description>Roslyn analyzers for EricksonLopez.Specification. Detects specification anti-patterns at compile time: unbounded queries, mutable state, unsafe closures, and AOT-incompatible constructs.</Description>
-    <PackageTags>$(CommonPackageTags);roslyn;roslyn-analyzers;static-analysis;code-analysis;codefix;developer-tools</PackageTags>
+    <PackageTags>$(CommonPackageTags);roslyn;roslyn-analyzers;static-analysis;code-analysis;codefix;developer-tools;linter</PackageTags>
     <TargetFramework>netstandard2.0</TargetFramework>
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
+    <ImplicitUsings>disable</ImplicitUsings>
     <IsAotCompatible>false</IsAotCompatible>
     <EnableTrimAnalyzer>false</EnableTrimAnalyzer>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
