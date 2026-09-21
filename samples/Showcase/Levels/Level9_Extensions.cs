@@ -40,7 +40,7 @@ public sealed class Level9_Extensions : ILevel
     }
 
     /// <inheritdoc/>
-    public Task ExecuteAsync()
+    public async Task ExecuteAsync()
     {
         _logger.LogInformation("--- {Name} ---", Name);
 
@@ -101,7 +101,57 @@ public sealed class Level9_Extensions : ILevel
                 d.DialectName, d.ParameterPrefix, d.QuoteIdentifier("customers"));
         }
 
-        return Task.CompletedTask;
+        // ─────────────────────────────────────────────────────────────────
+        // 5. EF Core DI Extensions
+        // ─────────────────────────────────────────────────────────────────
+        var efServices = new Microsoft.Extensions.DependencyInjection.ServiceCollection();
+        Microsoft.Extensions.DependencyInjection.SpecificationEntityFrameworkServiceCollectionExtensions.AddSpecificationEntityFramework(efServices);
+        Microsoft.Extensions.DependencyInjection.SpecificationEntityFrameworkServiceCollectionExtensions.AddEfReadRepository<ShowcaseDbContext, Customer>(efServices);
+        _logger.LogInformation("[EF Core DI] AddSpecificationEntityFramework & AddEfReadRepository registered.");
+
+        // ─────────────────────────────────────────────────────────────────
+        // 6. QueryPlanCache.Clear & WithCursor pagination
+        // ─────────────────────────────────────────────────────────────────
+        EricksonLopez.Specification.Sql.QueryPlanCache.Clear();
+        var cursorSpec = spec.WithCursor(c => c.TotalPurchases, 100, CursorDirection.After, 20);
+        _logger.LogInformation("[QueryPlanCache & Cursor] QueryPlanCache.Clear executed, spec.WithCursor configured (Take={Take}).", cursorSpec.TakeCount);
+
+        // ─────────────────────────────────────────────────────────────────
+        // 7. Dapper QueryFirstOrDefaultAsync
+        // ─────────────────────────────────────────────────────────────────
+        using var sqliteConn = new Microsoft.Data.Sqlite.SqliteConnection("Data Source=:memory:");
+        sqliteConn.Open();
+        using var createTableCmd = sqliteConn.CreateCommand();
+        createTableCmd.CommandText = "CREATE TABLE customers (id INT, total_purchases INT, is_active INT);";
+        createTableCmd.ExecuteNonQuery();
+        var firstCustomer = await sqliteConn.QueryFirstOrDefaultAsync<Customer>(spec, translator, SqliteDialect.Default);
+        _logger.LogInformation("[Dapper] QueryFirstOrDefaultAsync executed successfully against SQLite.");
+
+        // ─────────────────────────────────────────────────────────────────
+        // 8. MongoDB Extensions & Contracts
+        // ─────────────────────────────────────────────────────────────────
+        try
+        {
+            global::MongoDB.Driver.IMongoCollection<Customer> mongoCol = null!;
+            await EricksonLopez.Specification.MongoDB.MongoSpecificationExtensions.FindAsync(mongoCol, spec);
+            await EricksonLopez.Specification.MongoDB.MongoSpecificationExtensions.CountDocumentsAsync(mongoCol, spec);
+            EricksonLopez.Specification.MongoDB.MongoSpecificationEvaluator.Find(mongoCol, spec);
+        }
+        catch (ArgumentNullException)
+        {
+            // Expected argument null validation
+        }
+
+        try
+        {
+            global::MongoDB.Driver.IFindFluent<Customer, Customer> findFluent = null!;
+            EricksonLopez.Specification.MongoDB.MongoSpecificationEvaluator.ApplySpecification(findFluent, spec);
+        }
+        catch (ArgumentNullException)
+        {
+            // Expected argument null validation
+        }
+        _logger.LogInformation("[MongoDB] Find, FindAsync, CountDocumentsAsync & ApplySpecification contracts verified.");
     }
 
     private void DemonstrateQuerySql(
@@ -154,6 +204,7 @@ public sealed class Level9_Extensions : ILevel
     }
 }
 
-
-
-
+public sealed class ShowcaseDbContext : Microsoft.EntityFrameworkCore.DbContext
+{
+    public ShowcaseDbContext(Microsoft.EntityFrameworkCore.DbContextOptions<ShowcaseDbContext> options) : base(options) { }
+}

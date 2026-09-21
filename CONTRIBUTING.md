@@ -137,8 +137,10 @@ Before opening a PR, ensure:
 
 ---
 
-## Code of Conduct
+## Code of Conduct & Security
 
 This project follows the [Contributor Covenant v2.1](CODE_OF_CONDUCT.md). By participating, you agree to abide by its terms.
 
-Report violations to `ericksonlopezf@gmail.com`.
+Report Code of Conduct violations to `ericksonlopezf@gmail.com`.
+
+For security vulnerability reporting, please follow the responsible disclosure process in [SECURITY.md](SECURITY.md).

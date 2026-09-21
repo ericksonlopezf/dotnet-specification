@@ -103,6 +103,18 @@ public interface IReadRepository<T>
     /// A task representing the asynchronous operation.
     /// The task result contains the matching entity, or <see langword="null"/> if not found.
     /// </returns>
+    /// <remarks>
+    /// <para>
+    /// The default interface implementation always returns <see langword="null"/> (equivalent to
+    /// <c>Task.FromResult&lt;T?&gt;(default)</c>).
+    /// </para>
+    /// <para>
+    /// <strong>Implementors must override this method</strong> to provide actual entity lookup by identifier.
+    /// If not overridden, any call to <c>GetByIdAsync</c> will silently return <see langword="null"/>
+    /// regardless of whether the entity exists, which can cause <see cref="System.NullReferenceException"/>
+    /// in callers that do not expect a <see langword="null"/> result.
+    /// </para>
+    /// </remarks>
     Task<T?> GetByIdAsync<TId>(
         TId id,
         CancellationToken cancellationToken = default) where TId : notnull

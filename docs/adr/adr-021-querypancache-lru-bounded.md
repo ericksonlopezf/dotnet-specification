@@ -1,5 +1,11 @@
 # adr-021: QueryPlanCache Must Be Bounded (LRU Strategy)
 
+## Status
+Accepted
+
+## Date
+2026-08-14
+
 **Status**: Accepted  
 **Date**: 2026-08-14  
 **Deciders**: EricksonLopez.Specification architecture audit  

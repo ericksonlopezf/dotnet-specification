@@ -29,7 +29,27 @@ public sealed class ExpressionDebugFormatter : ExpressionVisitor
     /// <summary>Gets the singleton instance of the formatter.</summary>
     public static readonly ExpressionDebugFormatter Default = new();
 
+    static ExpressionDebugFormatter()
+    {
+        ExpressionDebugFormatterRegistry.Formatter = Format;
+    }
+
     private ExpressionDebugFormatter() { }
+
+    /// <summary>
+    /// Formats the specified expression tree as a human-readable string.
+    /// </summary>
+    /// <param name="expression">The expression tree to format.</param>
+    /// <returns>A formatted string representation of the expression.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="expression"/> is <see langword="null"/></exception>
+    public static string Format(Expression expression)
+    {
+        ArgumentNullException.ThrowIfNull(expression);
+        var builder = new FormatVisitor();
+        var body = expression is LambdaExpression lambda ? lambda.Body : expression;
+        builder.Visit(body);
+        return builder.ToString();
+    }
 
     /// <summary>
     /// Formats the specified expression tree as a human-readable string.
@@ -38,13 +58,7 @@ public sealed class ExpressionDebugFormatter : ExpressionVisitor
     /// <param name="expression">The expression tree to format.</param>
     /// <returns>A formatted string representation of the expression.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="expression"/> is <see langword="null"/></exception>
-    public static string Format<T>(Expression<Func<T, bool>> expression)
-    {
-        ArgumentNullException.ThrowIfNull(expression);
-        var builder = new FormatVisitor();
-        builder.Visit(expression.Body);
-        return builder.ToString();
-    }
+    public static string Format<T>(Expression<Func<T, bool>> expression) => Format((Expression)expression);
 
     private sealed class FormatVisitor : ExpressionVisitor
     {

@@ -1,5 +1,11 @@
 # adr-006: Strict Separation of `Specification<T>` (predicate) and `QuerySpec<T>` (query descriptor)
 
+## Status
+Accepted
+
+## Date
+2026-08-12
+
 **Status**: Accepted  
 **Date**: 2026-08-12  
 **Deciders**: EricksonLopez.Specification architecture audit  

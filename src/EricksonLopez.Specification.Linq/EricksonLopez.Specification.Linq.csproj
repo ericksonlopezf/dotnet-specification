@@ -5,12 +5,12 @@
     <RootNamespace>EricksonLopez.Specification.Linq</RootNamespace>
     <PackageId>EricksonLopez.Specification.Linq</PackageId>
     <Description>LINQ/IQueryable integration for EricksonLopez.Specification. Applies QuerySpec&lt;T&gt; to IQueryable&lt;T&gt; sources. Compatible with EF Core, LINQ to Objects, and any IQueryable provider.</Description>
-    <PackageTags>$(CommonPackageTags);linq;iqueryable;queryable;query-evaluation;aot</PackageTags>
+    <PackageTags>$(CommonPackageTags);linq;iqueryable;filtering;sorting;pagination;query-evaluation;native-aot;trimming</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
     <Compile Remove="Class1.cs" />
-    <ProjectReference Include="..\EricksonLopez.Specification\EricksonLopez.Specification.csproj" />
+    <ProjectReference Include="..\EricksonLopez.Specification.Abstractions\EricksonLopez.Specification.Abstractions.csproj" />
   </ItemGroup>
 
 </Project>

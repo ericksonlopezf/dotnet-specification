@@ -38,6 +38,10 @@ public static class ReadRepositoryResultExtensions
                 ? EricksonLopez.Result.Result.Failure<T>(Error.NotFound($"{typeof(T).Name}.NotFound", $"No {typeof(T).Name} found matching the specification."))
                 : EricksonLopez.Result.Result.Success(result);
         }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
         catch (Exception ex)
         {
             return EricksonLopez.Result.Result.Failure<T>(Error.Failure("Database.Error", ex.Message));
@@ -64,6 +68,10 @@ public static class ReadRepositoryResultExtensions
         {
             var result = await repository.ListAsync(specification, cancellationToken).ConfigureAwait(false);
             return EricksonLopez.Result.Result.Success(result);
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
         }
         catch (Exception ex)
         {
@@ -94,6 +102,10 @@ public static class ReadRepositoryResultExtensions
             return result is null
                 ? EricksonLopez.Result.Result.Failure<T>(Error.NotFound($"{typeof(T).Name}.NotFound", $"No {typeof(T).Name} found matching the specification."))
                 : EricksonLopez.Result.Result.Success(result);
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
         }
         catch (InvalidOperationException)
         {
@@ -129,6 +141,10 @@ public static class ReadRepositoryResultExtensions
             return result is null
                 ? EricksonLopez.Result.Result.Failure<T>(Error.NotFound($"{typeof(T).Name}.NotFound", $"No {typeof(T).Name} found with ID {id}."))
                 : EricksonLopez.Result.Result.Success(result);
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
         }
         catch (Exception ex)
         {

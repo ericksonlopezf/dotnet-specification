@@ -30,7 +30,7 @@ Please indicate the area your request relates to (check all that apply):
 A clear and concise description of any alternative solutions or features you've considered, including whether this might violate an existing ADR (see [ADR index](../../docs/adr/README.md)).
 
 **Why this should NOT be rejected as an ADR**
-Review the [what-not-to-build.md](../../what-not-to-build.md) and the existing [ADRs](../../docs/adr/README.md). Briefly explain why this feature is compatible with the library's architectural boundaries (zero-ORM domain purity, AOT-first, immutability).
+Review the [what-not-to-build.md](../../docs/what-not-to-build.md) and the existing [ADRs](../../docs/adr/README.md). Briefly explain why this feature is compatible with the library's architectural boundaries (zero-ORM domain purity, AOT-first, immutability).
 
 **Additional context**
 Add any other context, code examples, or references here.
