@@ -39,7 +39,7 @@
     <!-- Competitor benchmarks comparison -->
     <PackageVersion Include="Ardalis.Specification" Version="9.3.1" />
     <!-- Entity Framework Core -->
-    <PackageVersion Include="Microsoft.EntityFrameworkCore" Version="9.0.2" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore" Version="9.0.20" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.Relational" Version="9.0.2" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.InMemory" Version="9.0.2" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.2" />
