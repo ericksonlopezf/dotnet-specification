@@ -2,7 +2,7 @@
 
 > **Version**: 2.0 — Post-Audit Architecture Execution (2026-08-14)  
 > **Strategy**: Pure Domain Predicates · Zero-ORM SQL Engine · Native AOT-First · Compile-Time Governance  
-> **Repository Status**: 1,052 tests passing · 0 warnings (`--warnaserror`) · 11 Roslyn Analyzers · 6 SQL Dialects (PostgreSQL, SQL Server, SQLite, MySQL, MariaDB, Oracle)
+> **Repository Status**: 1,057 tests passing · 0 warnings (`--warnaserror`) · 11 Roslyn Analyzers · 6 SQL Dialects (PostgreSQL, SQL Server, SQLite, MySQL, MariaDB, Oracle)
 
 ---
 

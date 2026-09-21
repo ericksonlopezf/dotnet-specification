@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <Description>Entity Framework Core integration for EricksonLopez.Specification. Provides specification evaluation and asynchronous read repository implementations for EF Core.</Description>
-    <PackageTags>$(CommonPackageTags);efcore;entity-framework-core;orm;repository-pattern;aot</PackageTags>
+    <PackageTags>$(CommonPackageTags);efcore;entity-framework-core;orm;dbcontext;repository-pattern;data-access;native-aot</PackageTags>
     <NoWarn>$(NoWarn);CA1515</NoWarn>
   </PropertyGroup>
 

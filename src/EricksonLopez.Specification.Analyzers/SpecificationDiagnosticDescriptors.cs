@@ -14,7 +14,7 @@ public static class SpecificationDiagnosticDescriptors
     private const string Category = "Specification";
     private const string BaseUrl = "https://github.com/ericksonlopezf/dotnet-specification/docs/analyzers/";
 
-    /// <summary>Diagnostic descriptor for SPEC001: Specification class should be sealed or abstract.</summary>
+    /// <summary>Gets the diagnostic descriptor for SPEC001: Specification class should be sealed or abstract.</summary>
     public static readonly DiagnosticDescriptor SpecificationShouldBeSealedOrAbstract = new(
         id: "SPEC001",
         title: "Specification class should be sealed or abstract",
@@ -27,7 +27,7 @@ public static class SpecificationDiagnosticDescriptors
                      "Seal concrete specifications to make them clearly final, or mark them abstract if they are intended as base classes.",
         helpLinkUri: BaseUrl + "SPEC001");
 
-    /// <summary>Diagnostic descriptor for SPEC002: Mutable state in specification.</summary>
+    /// <summary>Gets the diagnostic descriptor for SPEC002: Mutable state in specification.</summary>
     public static readonly DiagnosticDescriptor MutableStateInSpecification = new(
         id: "SPEC002",
         title: "Specification contains mutable state",
@@ -40,7 +40,7 @@ public static class SpecificationDiagnosticDescriptors
                      "thread-safety issues if shared across requests. Consider making fields readonly or using immutable types.",
         helpLinkUri: BaseUrl + "SPEC002");
 
-    /// <summary>Diagnostic descriptor for SPEC003: Expression.Invoke detected in specification expression.</summary>
+    /// <summary>Gets the diagnostic descriptor for SPEC003: Expression.Invoke detected in specification expression.</summary>
     public static readonly DiagnosticDescriptor ExpressionInvokeDetected = new(
         id: "SPEC003",
         title: "Expression.Invoke detected in specification expression",
@@ -53,7 +53,7 @@ public static class SpecificationDiagnosticDescriptors
                      "Use the ExpressionComposer helpers which use parameter rebinding instead.",
         helpLinkUri: BaseUrl + "SPEC003");
 
-    /// <summary>Diagnostic descriptor for SPEC004: QuerySpec has no Take limit — potential unbounded query.</summary>
+    /// <summary>Gets the diagnostic descriptor for SPEC004: QuerySpec has no Take limit — potential unbounded query.</summary>
     public static readonly DiagnosticDescriptor UnboundedQuery = new(
         id: "SPEC004",
         title: "QuerySpec has no Take limit — potential unbounded query",
@@ -66,7 +66,7 @@ public static class SpecificationDiagnosticDescriptors
                      "returning all results is intentional (e.g., export scenarios).",
         helpLinkUri: BaseUrl + "SPEC004");
 
-    /// <summary>Diagnostic descriptor for SPEC005: QuerySpec has ordering but no pagination.</summary>
+    /// <summary>Gets the diagnostic descriptor for SPEC005: QuerySpec has ordering but no pagination.</summary>
     public static readonly DiagnosticDescriptor OrderingWithoutPagination = new(
         id: "SPEC005",
         title: "QuerySpec has ordering but no pagination",
@@ -79,7 +79,7 @@ public static class SpecificationDiagnosticDescriptors
                      "on the full dataset.",
         helpLinkUri: BaseUrl + "SPEC005");
 
-    /// <summary>Diagnostic descriptor for SPEC006: Domain specification defined outside Domain layer.</summary>
+    /// <summary>Gets the diagnostic descriptor for SPEC006: Domain specification defined outside Domain layer.</summary>
     public static readonly DiagnosticDescriptor DomainSpecificationOutsideDomain = new(
         id: "SPEC006",
         title: "Domain specification defined outside Domain layer",
@@ -91,7 +91,7 @@ public static class SpecificationDiagnosticDescriptors
         description: "Domain specifications should be defined in the Domain project to maintain Clean Architecture boundaries.",
         helpLinkUri: BaseUrl + "SPEC006");
 
-    /// <summary>Diagnostic descriptor for SPEC007: Expression contains non-translatable method call.</summary>
+    /// <summary>Gets the diagnostic descriptor for SPEC007: Expression contains non-translatable method call.</summary>
     public static readonly DiagnosticDescriptor PotentialClientSideEvaluation = new(
         id: "SPEC007",
         title: "Expression contains non-translatable method call — potential client-side evaluation",
@@ -104,7 +104,7 @@ public static class SpecificationDiagnosticDescriptors
                      "does not support them, potentially loading the entire table into memory.",
         helpLinkUri: BaseUrl + "SPEC007");
 
-    /// <summary>Diagnostic descriptor for SPEC008: Infrastructure service injected into domain specification constructor.</summary>
+    /// <summary>Gets the diagnostic descriptor for SPEC008: Infrastructure service injected into domain specification constructor.</summary>
     public static readonly DiagnosticDescriptor InfrastructureServiceInSpecification = new(
         id: "SPEC008",
         title: "Infrastructure service injected into domain specification constructor",
@@ -118,7 +118,7 @@ public static class SpecificationDiagnosticDescriptors
                      "Pass only primitive values or domain objects required to define the predicate.",
         helpLinkUri: BaseUrl + "SPEC008");
 
-    /// <summary>Diagnostic descriptor for SPEC009: Async lambda or await expression inside BuildExpression.</summary>
+    /// <summary>Gets the diagnostic descriptor for SPEC009: Async lambda or await expression inside BuildExpression.</summary>
     public static readonly DiagnosticDescriptor AsyncLambdaInExpression = new(
         id: "SPEC009",
         title: "Async lambda or await expression inside BuildExpression",
@@ -131,7 +131,7 @@ public static class SpecificationDiagnosticDescriptors
                      "Remove async lambdas from BuildExpression(). If async data is needed, resolve it before constructing the specification.",
         helpLinkUri: BaseUrl + "SPEC009");
 
-    /// <summary>Diagnostic descriptor for SPEC010: IsSatisfiedBy called inside BuildExpression.</summary>
+    /// <summary>Gets the diagnostic descriptor for SPEC010: IsSatisfiedBy called inside BuildExpression.</summary>
     public static readonly DiagnosticDescriptor IsSatisfiedByInsideBuildExpression = new(
         id: "SPEC010",
         title: "IsSatisfiedBy called inside BuildExpression",
@@ -144,7 +144,7 @@ public static class SpecificationDiagnosticDescriptors
                      "Use And() / Or() composition methods instead to combine specification logic at the expression tree level.",
         helpLinkUri: BaseUrl + "SPEC010");
 
-    /// <summary>Diagnostic descriptor for SPEC011: Legacy Ardalis.Specification usage detected.</summary>
+    /// <summary>Gets the diagnostic descriptor for SPEC011: Legacy Ardalis.Specification usage detected.</summary>
     public static readonly DiagnosticDescriptor LegacyArdalisSpecificationDetected = new(
         id: "SPEC011",
         title: "Legacy Ardalis.Specification usage detected",

@@ -1,5 +1,11 @@
 # adr-016: No Auto-generated BuildExpression()
 
+## Status
+Accepted
+
+## Date
+2026-08-13
+
 **Status**: Accepted  
 **Date**: 2026-08-13  
 **Deciders**: Erickson Lopez

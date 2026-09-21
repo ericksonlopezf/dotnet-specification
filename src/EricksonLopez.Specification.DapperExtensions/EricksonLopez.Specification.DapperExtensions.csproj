@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <Description>DapperExtensions integration for EricksonLopez.Specification. Enables executing domain specifications over IDbConnection and IUnitOfWork.</Description>
-    <PackageTags>$(CommonPackageTags);dapper;dapper-extensions;unit-of-work;repository-pattern;aot</PackageTags>
+    <PackageTags>$(CommonPackageTags);dapper;dapper-extensions;micro-orm;unit-of-work;repository-pattern;data-access;native-aot</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>

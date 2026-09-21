@@ -12,18 +12,20 @@ All external dependencies are centrally versioned in [`Directory.Packages.props`
 
 | Dependency | Pinned Version | Scope |
 |---|---|---|
-| `Dapper` | 2.1.66 | Micro-ORM SQL execution |
+| `Dapper` | 2.1.79 | Micro-ORM SQL execution |
 | `Dapper.AOT` | 1.0.52 | Native AOT code generation for Dapper |
-| `Npgsql` | 9.0.3 | PostgreSQL provider driver |
+| `Npgsql` | 10.0.3 | PostgreSQL provider driver |
 | `Microsoft.EntityFrameworkCore` | 9.0.2 | EF Core LINQ and relational engine |
 | `Microsoft.EntityFrameworkCore.Relational` | 9.0.2 | EF Core relational extensions |
 | `Microsoft.EntityFrameworkCore.InMemory` | 9.0.2 | In-memory testing provider |
 | `Microsoft.EntityFrameworkCore.Sqlite` | 9.0.2 | SQLite EF Core provider |
-| `MongoDB.Driver` | 3.10.0 | MongoDB document store driver |
+| `MongoDB.Driver` | 3.11.1 | MongoDB document store driver |
 | `Microsoft.Extensions.Hosting` | 10.0.11 | Generic host & runtime integration |
-| `Microsoft.CodeAnalysis.CSharp` | 4.14.0 | Roslyn compiler API for analyzers & generators |
+| `Microsoft.Extensions.DependencyInjection.Abstractions` | 10.0.2 | Dependency Injection abstractions |
+| `Microsoft.CodeAnalysis.CSharp` | 5.9.0 | Roslyn compiler API for analyzers & generators |
 | `OpenTelemetry.Api` | 1.10.0 | Distributed tracing and metrics |
 | `System.Diagnostics.DiagnosticSource` | 9.0.0 | Observability ActivitySource & Meter |
+| `EricksonLopez.Result` | 1.0.0 | Functional Result pattern integration |
 
 ---
 
@@ -53,7 +55,7 @@ graph TD
     GEN[EricksonLopez.Specification.Generators]
 
     CORE --> ABS
-    LINQ --> CORE
+    LINQ --> ABS
     SQL --> CORE
     
     PG --> SQL
@@ -80,7 +82,7 @@ graph TD
 
 ## Package Catalog
 
-All shipping packages target `net10.0` with `LangVersion=preview`.
+Shipping library packages multi-target `.NET 8`, `.NET 9`, and `.NET 10` (`TargetFrameworks=net8.0;net9.0;net10.0` with `LangVersion=preview`). Tooling packages (`Analyzers` and `Generators`) target `.NET Standard 2.0` (`netstandard2.0`) for broad Roslyn IDE and build host compatibility.
 
 ### 1. `EricksonLopez.Specification.Abstractions`
 - **Purpose**: Foundational contracts with zero external dependencies.
@@ -170,7 +172,7 @@ All shipping packages target `net10.0` with `LangVersion=preview`.
 
 ## Compatibility Matrix
 
-| Package | .NET 10 | Native AOT | Entity Framework Core | Dapper | MongoDB |
+| Package | .NET 8 / 10 | Native AOT | Entity Framework Core | Dapper | MongoDB |
 |---|:---:|:---:|:---:|:---:|:---:|
 | `Abstractions` | ✅ Yes | ✅ Full | ✅ Yes | ✅ Yes | ✅ Yes |
 | `Specification` (Core) | ✅ Yes | ✅ Full (Interpreted) | ✅ Yes | ✅ Yes | ✅ Yes |
@@ -187,5 +189,5 @@ All shipping packages target `net10.0` with `LangVersion=preview`.
 | `MongoDB` | ✅ Yes | ✅ Full | ❌ N/A | ❌ N/A | ✅ Yes |
 | `DapperExtensions` | ✅ Yes | ✅ Full | ❌ N/A | ✅ Yes | ❌ N/A |
 | `Result` | ✅ Yes | ✅ Full | ✅ Yes | ✅ Yes | ✅ Yes |
-| `Analyzers` | ✅ Roslyn 4.14 | N/A (Dev) | N/A | N/A | N/A |
-| `Generators` | ✅ Roslyn 4.14 | N/A (Dev) | N/A | N/A | N/A |
+| `Analyzers` | ✅ Roslyn 5.9 | N/A (Dev) | N/A | N/A | N/A |
+| `Generators` | ✅ Roslyn 5.9 | N/A (Dev) | N/A | N/A | N/A |

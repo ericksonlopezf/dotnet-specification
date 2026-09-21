@@ -29,6 +29,8 @@
     <ProjectReference Include="..\..\src\EricksonLopez.Specification.Abstractions\EricksonLopez.Specification.Abstractions.csproj" />
     <ProjectReference Include="..\..\src\EricksonLopez.Specification\EricksonLopez.Specification.csproj" />
     <ProjectReference Include="..\..\src\EricksonLopez.Specification.Linq\EricksonLopez.Specification.Linq.csproj" />
+    <ProjectReference Include="..\..\src\EricksonLopez.Specification.Sql\EricksonLopez.Specification.Sql.csproj" />
+    <ProjectReference Include="..\..\src\EricksonLopez.Specification.Result\EricksonLopez.Specification.Result.csproj" />
   </ItemGroup>
 
 </Project>

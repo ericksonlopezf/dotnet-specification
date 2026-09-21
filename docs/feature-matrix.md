@@ -2,7 +2,7 @@
 
 > **Version**: 1.0 — Post-Audit Execution (2026-08-14)  
 > **Auditor/Architect**: Principal .NET Architect & DDD Specialist  
-> **Repository**: `EricksonLopez.Specification` (.NET 10 / C# 13)
+> **Repository**: `EricksonLopez.Specification` (.NET 8 & 10 / C# 13)
 
 ---
 
@@ -40,7 +40,7 @@ Each feature in this matrix is categorized according to strict DDD and Clean Arc
 |---|---|---|---|---|---|---|---|---|---|---|
 | Core | `Specification<T>` abstract base | ✅ Implemented | CORE | P0 | Specification | Pure Domain | ⚠️ Conditional | Zero Alloc (Cached) | Low | **KEEP** |
 | Core | `ISpecification<T>` minimal contract | ✅ Implemented | CORE | P0 | Abstractions | Pure Domain | ✅ Full | Zero Alloc | Low | **KEEP** |
-| Core | `IExpressionSpecification<T>` | ✅ Implemented | CORE | P0 | Specification | Pure Domain | ⚠️ Conditional | Zero Alloc | Low | **KEEP** |
+| Core | `IExpressionSpecification<T>` | ✅ Implemented | CORE | P0 | Abstractions | Pure Domain | ✅ Full | Zero Alloc | Low | **KEEP (adr-023)** |
 | Core | `BuildExpression()` lazy cache | ✅ Implemented | CORE | P0 | Specification | Pure Domain | ✅ Full | Zero Alloc | Low | **KEEP** |
 | Core | `IsSatisfiedBy(T)` (interpreted) | ✅ Implemented | CORE | P0 | Specification | Pure Domain | ⚠️ Conditional (Reflection) | ~500ns / 0 B | High | **KEEP** |
 | Core | `ToCompiledPredicate()` | ✅ Implemented | CORE | P0 | Specification | Pure Domain | ❌ RequiresDynamicCode | ~15ns / 0 B (Cached) | Medium | **KEEP** |

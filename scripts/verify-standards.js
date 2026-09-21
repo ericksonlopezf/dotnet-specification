@@ -40,7 +40,7 @@ const standardGithubFiles = new Set([
 function checkMarkdownFilenames(dir) {
   const entries = fs.readdirSync(dir, { withFileTypes: true });
   for (const entry of entries) {
-    if (entry.name === 'node_modules' || entry.name === '.git' || entry.name === 'bin' || entry.name === 'obj' || entry.name === 'BenchmarkDotNet.Artifacts') {
+    if (entry.name === 'node_modules' || entry.name === '.git' || entry.name === 'bin' || entry.name === 'obj' || entry.name === 'BenchmarkDotNet.Artifacts' || entry.name === 'StrykerOutput' || entry.name === '.stryker-tmp' || entry.name === 'TestResults' || entry.name === 'results') {
       continue;
     }
     const fullPath = path.join(dir, entry.name);
@@ -146,7 +146,7 @@ function checkProjectFiles(dir) {
 function checkBranding(dir) {
   const entries = fs.readdirSync(dir, { withFileTypes: true });
   for (const entry of entries) {
-    if (entry.name === 'node_modules' || entry.name === '.git' || entry.name === 'bin' || entry.name === 'obj') continue;
+    if (entry.name === 'node_modules' || entry.name === '.git' || entry.name === 'bin' || entry.name === 'obj' || entry.name === 'BenchmarkDotNet.Artifacts' || entry.name === 'StrykerOutput' || entry.name === '.stryker-tmp' || entry.name === 'TestResults' || entry.name === 'results') continue;
     const fullPath = path.join(dir, entry.name);
     if (entry.isDirectory()) {
       checkBranding(fullPath);
@@ -155,8 +155,8 @@ function checkBranding(dir) {
       if (content.includes('github.com/ericksonlopez/dotnet-specifications') || content.includes('github.com/ericksonlopez/dotnet-specification')) {
         logError(fullPath, `Found obsolete repository URL. Use 'github.com/ericksonlopezf/dotnet-specification'.`);
       }
-      if (entry.name === 'Directory.Build.props' && !content.includes('https://ericksonlopez.dev/dotnet-specification')) {
-        logError(fullPath, `PackageProjectUrl in Directory.Build.props must be 'https://ericksonlopez.dev/dotnet-specification'.`);
+      if (entry.name === 'Directory.Build.props' && !content.includes('https://ericksonlopez.dev/specification')) {
+        logError(fullPath, `PackageProjectUrl in Directory.Build.props must be 'https://ericksonlopez.dev/specification'.`);
       }
     }
   }

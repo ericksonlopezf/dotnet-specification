@@ -1,5 +1,11 @@
 # adr-012: Projection Boundary
 
+## Status
+Accepted
+
+## Date
+2026-08-13
+
 **Status**: Accepted
 **Date**: 2026-08-13
 

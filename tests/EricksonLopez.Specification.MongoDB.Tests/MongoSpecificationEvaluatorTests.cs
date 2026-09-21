@@ -206,5 +206,19 @@ public sealed class MongoSpecificationEvaluatorTests
         findFluent.DidNotReceive().Limit(Arg.Any<int>());
     }
 
+    [Fact]
+    public void ApplySpecification_WithCriteria_CombinesCriteriaWithFilter()
+    {
+        var spec = QuerySpec<TestDocument>.Empty.Where(d => d.IsActive);
+        var findFluent = Substitute.For<IFindFluent<TestDocument, TestDocument>>();
+        findFluent.Filter = Builders<TestDocument>.Filter.Empty;
+
+        var result = findFluent.ApplySpecification(spec);
+
+        result.Should().BeSameAs(findFluent);
+        findFluent.Filter.Should().NotBeNull();
+        findFluent.Filter.Should().NotBe(Builders<TestDocument>.Filter.Empty);
+    }
+
     #endregion
 }

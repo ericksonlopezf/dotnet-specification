@@ -8,7 +8,7 @@ This document provides a comprehensive overview of the `EricksonLopez.Specificat
 
 ## 1. Executive Summary
 
-EricksonLopez.Specification is a **composable, AOT-first, provider-agnostic predicate and query descriptor library** for .NET 10+.
+EricksonLopez.Specification is a **composable, AOT-first, provider-agnostic predicate and query descriptor library** multi-targeting .NET 8 and .NET 10.
 
 **Three non-negotiable design constraints**:
 
