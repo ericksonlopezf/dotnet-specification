@@ -2,7 +2,7 @@
 <html lang='en'>
 <head>
 <meta charset='utf-8' />
-<title>EricksonLopez.Specification.Benchmarks.SpanCompositionBenchmarks-20260920-071759</title>
+<title>EricksonLopez.Specification.Benchmarks.SpanCompositionBenchmarks-20260927-072320</title>
 
 <style type="text/css">
 	table { border-collapse: collapse; display: block; width: 100%; overflow: auto; }
@@ -13,11 +13,12 @@
 </head>
 <body>
 <pre><code>
-BenchmarkDotNet v0.14.0, Ubuntu 24.04.5 LTS (Noble Numbat)
-Intel Xeon Platinum 8370C CPU 2.80GHz, 1 CPU, 4 logical and 2 physical cores
+BenchmarkDotNet v0.16.0-preview.1, Linux Ubuntu 24.04.5 LTS (Noble Numbat)
+AMD EPYC 9V74 3.69GHz, 1 CPU, 4 logical and 2 physical cores
+Memory: 15.61 GB Total, 8.55 GB Available
 .NET SDK 10.0.401
-  [Host]   : .NET 10.0.12 (10.0.1226.42308), X64 RyuJIT AVX-512F+CD+BW+DQ+VL+VBMI
-  ShortRun : .NET 10.0.12 (10.0.1226.42308), X64 RyuJIT AVX-512F+CD+BW+DQ+VL+VBMI
+  [Host]   : .NET 10.0.12 (10.0.12, 10.0.1226.42308), X64 RyuJIT x86-64-v4
+  ShortRun : .NET 10.0.12 (10.0.12, 10.0.1226.42308), X64 RyuJIT x86-64-v4
 </code></pre>
 <pre><code>Job=ShortRun  IterationCount=3  LaunchCount=1  
 WarmupCount=3  
@@ -26,9 +27,9 @@ WarmupCount=3
 <table>
 <thead><tr><th>Method             </th><th>Mean</th><th>Ratio</th><th>RatioSD</th><th>Gen0</th><th>Allocated</th><th>Alloc Ratio</th>
 </tr>
-</thead><tbody><tr><td>&#39;Chained .And() x4&#39;</td><td>1.308 &mu;s</td><td>1.00</td><td>0.00</td><td>0.0782</td><td>1.94 KB</td><td>1.00</td>
-</tr><tr><td>&#39;AndAll(ReadOnlySpan) x5&#39;</td><td>1.178 &mu;s</td><td>0.90</td><td>0.00</td><td>0.0782</td><td>1.94 KB</td><td>1.00</td>
-</tr><tr><td>&#39;Chained Spec.And() x4&#39;</td><td>4.270 &mu;s</td><td>3.26</td><td>0.12</td><td>0.2136</td><td>5.41 KB</td><td>2.79</td>
+</thead><tbody><tr><td>&#39;Chained .And() x4&#39;</td><td>982.1 ns</td><td>1.00</td><td>0.00</td><td>0.1183</td><td>1.94 KB</td><td>1.00</td>
+</tr><tr><td>&#39;AndAll(ReadOnlySpan) x5&#39;</td><td>1,092.7 ns</td><td>1.11</td><td>0.02</td><td>0.1183</td><td>1.94 KB</td><td>1.00</td>
+</tr><tr><td>&#39;Chained Spec.And() x4&#39;</td><td>3,147.7 ns</td><td>3.21</td><td>0.02</td><td>0.3281</td><td>5.41 KB</td><td>2.79</td>
 </tr></tbody></table>
 </body>
 </html>
