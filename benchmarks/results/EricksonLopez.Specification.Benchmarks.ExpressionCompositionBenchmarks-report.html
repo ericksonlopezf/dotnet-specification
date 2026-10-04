@@ -2,7 +2,7 @@
 <html lang='en'>
 <head>
 <meta charset='utf-8' />
-<title>EricksonLopez.Specification.Benchmarks.ExpressionCompositionBenchmarks-20260927-072237</title>
+<title>EricksonLopez.Specification.Benchmarks.ExpressionCompositionBenchmarks-20261004-073644</title>
 
 <style type="text/css">
 	table { border-collapse: collapse; display: block; width: 100%; overflow: auto; }
@@ -14,22 +14,22 @@
 <body>
 <pre><code>
 BenchmarkDotNet v0.16.0-preview.1, Linux Ubuntu 24.04.5 LTS (Noble Numbat)
-AMD EPYC 9V74 3.69GHz, 1 CPU, 4 logical and 2 physical cores
-Memory: 15.61 GB Total, 8.55 GB Available
+AMD EPYC 9V74 2.87GHz, 1 CPU, 4 logical and 2 physical cores
+Memory: 15.61 GB Total, 8.57 GB Available
 .NET SDK 10.0.401
-  [Host]   : .NET 10.0.12 (10.0.12, 10.0.1226.42308), X64 RyuJIT x86-64-v4
-  ShortRun : .NET 10.0.12 (10.0.12, 10.0.1226.42308), X64 RyuJIT x86-64-v4
+  [Host]   : .NET 10.0.12 (10.0.12, 10.0.1226.42308), X64 RyuJIT x86-64-v3
+  ShortRun : .NET 10.0.12 (10.0.12, 10.0.1226.42308), X64 RyuJIT x86-64-v3
 </code></pre>
 <pre><code>Job=ShortRun  IterationCount=3  LaunchCount=1  
 WarmupCount=3  
 </code></pre>
 
 <table>
-<thead><tr><th>Method                           </th><th>Mean</th><th>Ratio</th><th>Gen0</th><th>Allocated</th><th>Alloc Ratio</th>
+<thead><tr><th>Method                           </th><th>Mean</th><th>Ratio</th><th>RatioSD</th><th>Gen0</th><th>Allocated</th><th>Alloc Ratio</th>
 </tr>
-</thead><tbody><tr><td>&#39;Manual: x =&gt; left &amp;&amp; right&#39;</td><td>422.2 ns</td><td>1.00</td><td>0.0401</td><td>672 B</td><td>1.00</td>
-</tr><tr><td>&#39;EricksonLopez: ExpressionComposer.And&#39;</td><td>197.1 ns</td><td>0.47</td><td>0.0267</td><td>448 B</td><td>0.67</td>
-</tr><tr><td>&#39;EricksonLopez: 5-way AND&#39;</td><td>703.3 ns</td><td>1.67</td><td>0.1030</td><td>1736 B</td><td>2.58</td>
+</thead><tbody><tr><td>&#39;Manual: x =&gt; left &amp;&amp; right&#39;</td><td>442.5 ns</td><td>1.00</td><td>0.00</td><td>0.0334</td><td>560 B</td><td>1.00</td>
+</tr><tr><td>&#39;EricksonLopez: ExpressionComposer.And&#39;</td><td>243.4 ns</td><td>0.55</td><td>0.01</td><td>0.0267</td><td>448 B</td><td>0.80</td>
+</tr><tr><td>&#39;EricksonLopez: 5-way AND&#39;</td><td>912.4 ns</td><td>2.06</td><td>0.03</td><td>0.1030</td><td>1736 B</td><td>3.10</td>
 </tr></tbody></table>
 </body>
 </html>
