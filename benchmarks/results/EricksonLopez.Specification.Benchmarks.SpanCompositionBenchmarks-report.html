@@ -2,7 +2,7 @@
 <html lang='en'>
 <head>
 <meta charset='utf-8' />
-<title>EricksonLopez.Specification.Benchmarks.SpanCompositionBenchmarks-20261011-080412</title>
+<title>EricksonLopez.Specification.Benchmarks.SpanCompositionBenchmarks-20261018-065116</title>
 
 <style type="text/css">
 	table { border-collapse: collapse; display: block; width: 100%; overflow: auto; }
@@ -14,11 +14,11 @@
 <body>
 <pre><code>
 BenchmarkDotNet v0.16.0-preview.1, Linux Ubuntu 24.04.5 LTS (Noble Numbat)
-AMD EPYC 9V74 2.87GHz, 1 CPU, 4 logical and 2 physical cores
-Memory: 15.61 GB Total, 8.62 GB Available
-.NET SDK 10.0.401
-  [Host]   : .NET 10.0.12 (10.0.12, 10.0.1226.42308), X64 RyuJIT x86-64-v3
-  ShortRun : .NET 10.0.12 (10.0.12, 10.0.1226.42308), X64 RyuJIT x86-64-v3
+AMD EPYC 7763 2.45GHz, 1 CPU, 4 logical and 2 physical cores
+Memory: 15.61 GB Total, 6.98 GB Available
+.NET SDK 10.0.402
+  [Host]   : .NET 10.0.13 (10.0.13, 10.0.1326.50504), X64 RyuJIT x86-64-v3
+  ShortRun : .NET 10.0.13 (10.0.13, 10.0.1326.50504), X64 RyuJIT x86-64-v3
 </code></pre>
 <pre><code>Job=ShortRun  IterationCount=3  LaunchCount=1  
 WarmupCount=3  
@@ -27,9 +27,9 @@ WarmupCount=3
 <table>
 <thead><tr><th>Method             </th><th>Mean</th><th>Ratio</th><th>RatioSD</th><th>Gen0</th><th>Allocated</th><th>Alloc Ratio</th>
 </tr>
-</thead><tbody><tr><td>&#39;Chained .And() x4&#39;</td><td>1.539 μs</td><td>1.00</td><td>0.00</td><td>0.1183</td><td>1.94 KB</td><td>1.00</td>
-</tr><tr><td>&#39;AndAll(ReadOnlySpan) x5&#39;</td><td>1.280 μs</td><td>0.83</td><td>0.00</td><td>0.1183</td><td>1.94 KB</td><td>1.00</td>
-</tr><tr><td>&#39;Chained Spec.And() x4&#39;</td><td>4.272 μs</td><td>2.78</td><td>0.02</td><td>0.3281</td><td>5.41 KB</td><td>2.79</td>
+</thead><tbody><tr><td>&#39;Chained .And() x4&#39;</td><td>1.523 μs</td><td>1.00</td><td>0.00</td><td>0.1183</td><td>1.94 KB</td><td>1.00</td>
+</tr><tr><td>&#39;AndAll(ReadOnlySpan) x5&#39;</td><td>1.588 μs</td><td>1.04</td><td>0.01</td><td>0.1278</td><td>2.09 KB</td><td>1.08</td>
+</tr><tr><td>&#39;Chained Spec.And() x4&#39;</td><td>5.113 μs</td><td>3.36</td><td>0.02</td><td>0.3433</td><td>5.65 KB</td><td>2.92</td>
 </tr></tbody></table>
 </body>
 </html>
