@@ -1,11 +1,11 @@
 ```
 
 BenchmarkDotNet v0.16.0-preview.1, Linux Ubuntu 24.04.5 LTS (Noble Numbat)
-AMD EPYC 7763 2.67GHz, 1 CPU, 4 logical and 2 physical cores
-Memory: 15.61 GB Total, 6.83 GB Available
-.NET SDK 10.0.402
-  [Host]   : .NET 10.0.13 (10.0.13, 10.0.1326.50504), X64 RyuJIT x86-64-v3
-  ShortRun : .NET 10.0.13 (10.0.13, 10.0.1326.50504), X64 RyuJIT x86-64-v3
+AMD EPYC 7763 3.23GHz, 1 CPU, 4 logical and 2 physical cores
+Memory: 15.61 GB Total, 10.09 GB Available
+.NET SDK 10.0.403
+  [Host]   : .NET 10.0.14 (10.0.14, 10.0.1426.52326), X64 RyuJIT x86-64-v3
+  ShortRun : .NET 10.0.14 (10.0.14, 10.0.1426.52326), X64 RyuJIT x86-64-v3
 
 Job=ShortRun  IterationCount=3  LaunchCount=1  
 WarmupCount=3  
@@ -13,5 +13,5 @@ WarmupCount=3
 ```
 | Method                           | Mean       | Ratio | Gen0   | Gen1   | Allocated | Alloc Ratio |
 |--------------------------------- |-----------:|------:|-------:|-------:|----------:|------------:|
-| &#39;Manual LINQ&#39;                    | 1,089.8 μs |  1.00 | 3.9063 | 1.9531 |   68.1 KB |        1.00 |
-| &#39;EricksonLopez: QuerySpec.Apply&#39; |   977.1 μs |  0.90 | 3.9063 | 1.9531 |  73.03 KB |        1.07 |
+| &#39;Manual LINQ&#39;                    | 1,097.4 μs |  1.00 | 3.9063 | 1.9531 |  67.83 KB |        1.00 |
+| &#39;EricksonLopez: QuerySpec.Apply&#39; |   951.1 μs |  0.87 | 3.9063 | 2.9297 |  73.03 KB |        1.08 |
