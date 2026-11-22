@@ -2,7 +2,7 @@
 <html lang='en'>
 <head>
 <meta charset='utf-8' />
-<title>EricksonLopez.Specification.Benchmarks.ExpressionCompositionBenchmarks-20261115-083919</title>
+<title>EricksonLopez.Specification.Benchmarks.ExpressionCompositionBenchmarks-20261122-090542</title>
 
 <style type="text/css">
 	table { border-collapse: collapse; display: block; width: 100%; overflow: auto; }
@@ -14,8 +14,8 @@
 <body>
 <pre><code>
 BenchmarkDotNet v0.16.0-preview.1, Linux Ubuntu 26.04.1 LTS (Resolute Raccoon)
-AMD EPYC 9V45 4.50GHz, 1 CPU, 4 logical and 2 physical cores
-Memory: 15.61 GB Total, 10.18 GB Available
+Intel Xeon 6973P-C 3.33GHz, 1 CPU, 4 logical and 2 physical cores
+Memory: 15.61 GB Total, 10.02 GB Available
 .NET SDK 10.0.404
   [Host]   : .NET 10.0.15 (10.0.15, 10.0.1526.53008), X64 RyuJIT x86-64-v4
   ShortRun : .NET 10.0.15 (10.0.15, 10.0.1526.53008), X64 RyuJIT x86-64-v4
@@ -25,11 +25,11 @@ WarmupCount=3
 </code></pre>
 
 <table>
-<thead><tr><th>Method                           </th><th>Mean</th><th>Ratio</th><th>RatioSD</th><th>Gen0</th><th>Allocated</th><th>Alloc Ratio</th>
+<thead><tr><th>Method                           </th><th>Mean</th><th>Ratio</th><th>Gen0</th><th>Allocated</th><th>Alloc Ratio</th>
 </tr>
-</thead><tbody><tr><td>&#39;Manual: x =&gt; left &amp;&amp; right&#39;</td><td>246.8 ns</td><td>1.00</td><td>0.00</td><td>0.0334</td><td>560 B</td><td>1.00</td>
-</tr><tr><td>&#39;EricksonLopez: ExpressionComposer.And&#39;</td><td>137.2 ns</td><td>0.56</td><td>0.02</td><td>0.0267</td><td>448 B</td><td>0.80</td>
-</tr><tr><td>&#39;EricksonLopez: 5-way AND&#39;</td><td>513.8 ns</td><td>2.08</td><td>0.08</td><td>0.1030</td><td>1736 B</td><td>3.10</td>
+</thead><tbody><tr><td>&#39;Manual: x =&gt; left &amp;&amp; right&#39;</td><td>374.3 ns</td><td>1.00</td><td>0.0067</td><td>560 B</td><td>1.00</td>
+</tr><tr><td>&#39;EricksonLopez: ExpressionComposer.And&#39;</td><td>221.7 ns</td><td>0.59</td><td>0.0052</td><td>448 B</td><td>0.80</td>
+</tr><tr><td>&#39;EricksonLopez: 5-way AND&#39;</td><td>832.8 ns</td><td>2.23</td><td>0.0200</td><td>1736 B</td><td>3.10</td>
 </tr></tbody></table>
 </body>
 </html>
